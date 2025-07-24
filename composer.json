@@ -8,6 +8,7 @@
         "php": "^8.2",
         "bezhansalleh/filament-shield": "3.2.6",
         "filament/filament": "3.3",
+        "joshembling/image-optimizer": "^1.6",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9"
     },
