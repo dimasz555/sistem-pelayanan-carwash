@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->enum('sapaan', ['Pak', 'Bu', 'Bang', 'Kak'])->nullable();
+            $table->string('phone')->unique();
+            $table->string('address')->nullable();
+            $table->integer('total_wash')->nullable();
+            $table->integer('free_wash_count')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
