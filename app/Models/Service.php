@@ -21,22 +21,23 @@ class Service extends Model
     ];
     protected $casts = [
         'price' => 'integer',
-    ];  
-    /**
-     * Get the category that owns the service.
-     */
+    ];
+
     public function category()
     {
         return $this->belongsTo(Category::class);
-    }           
-    /**
-     * Get the size that owns the service.
-     */
+    }
+
     public function size()
     {
         return $this->belongsTo(Size::class);
     }
-    
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
     protected static function booted()
     {
         static::deleting(function ($service) {

@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path('panel')
             ->databaseNotifications()
             ->login()
             ->navigationGroups([
@@ -36,9 +36,11 @@ class AdminPanelProvider extends PanelProvider
                     ->collapsible(),
                 NavigationGroup::make('Transaksi')
                     ->collapsible(),
+                NavigationGroup::make('Antrian')
+                    ->collapsible(),
             ])
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::hex('#0040D4'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

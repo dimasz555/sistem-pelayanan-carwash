@@ -68,53 +68,67 @@ class CustomerResource extends Resource
                     ->numeric(),
             ]);
     }
-
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('sapaan'),
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Nama Pelanggan')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('phone')
-                    ->label('Nomor WhatsApp')
-                    ->searchable(),
-                // Tables\Columns\TextColumn::make('address')
-                //     ->label('Alamat')
-                //     ->searchable(),
-                Tables\Columns\TextColumn::make('total_wash')
-                    ->label('Total Pencucian')
-                    ->numeric()
+                    ->label('Nama')
+                    ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('free_wash_count')
-                    ->label('Jumlah Cuci Gratis')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Tanggal Ditambahkan')
-                    ->formatStateUsing(function ($state, $record) {
-                        return \Carbon\Carbon::parse($state)
-                            ->timezone('Asia/Jakarta')
-                            ->locale('id')
-                            ->isoFormat('dddd, D MMMM YYYY, HH:mm');
 
-                        return '';
-                    })
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('sapaan')
+                    ->label('Sapaan')
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('phone')
+                    ->label('Telepon')
+                    ->searchable()
+                    ->copyable(),
+
+                Tables\Columns\TextColumn::make('address')
+                    ->label('Alamat')
+                    ->searchable()
+                    ->limit(50),
+
+                Tables\Columns\TextColumn::make('total_wash')
+                    ->label('Total Cuci')
+                    ->badge()
+                    ->color('success')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('free_wash_count')
+                    ->label('Cuci Gratis')
+                    ->badge()
+                    ->color('warning')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Bergabung')
+                    ->date('d/m/Y')
+                    ->sortable(),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\Filter::make('frequent_customer')
+                    ->query(fn(Builder $query): Builder => $query->where('total_wash', '>=', 5))
+                    ->label('Pelanggan Setia (5+ cuci)'),
+
+                Tables\Filters\Filter::make('has_free_wash')
+                    ->query(fn(Builder $query): Builder => $query->where('free_wash_count', '>', 0))
+                    ->label('Punya Cuci Gratis'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make()
+                    ->iconButton()
+                    ->tooltip('Lihat Detail'),
+
+                Tables\Actions\EditAction::make()
+                    ->iconButton()
+                    ->tooltip('Edit Customer'),
+
+                Tables\Actions\DeleteAction::make()
+                    ->iconButton()
+                    ->tooltip('Hapus Customer'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -122,7 +136,8 @@ class CustomerResource extends Resource
                 ]),
                 ExportBulkAction::make()
                     ->exporter(CustomerExporter::class),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc'); // Sort berdasarkan yang paling sering cuci
     }
 
     public static function getRelations(): array

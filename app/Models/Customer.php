@@ -18,4 +18,9 @@ class Customer extends Model
         'free_wash_count',
     ];
 
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
 }
