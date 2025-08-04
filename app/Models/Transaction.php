@@ -79,4 +79,20 @@ class Transaction extends Model
 
         return round(($this->discount_amount / $this->service_price) * 100, 2);
     }
+
+    public function getTrackingStepsAttribute()
+    {
+        return [
+            'pending' => 'Pesanan Diterima',
+            'waiting' => 'Kendaraan Masuk Antrian',
+            'processing' => 'Proses Pencucian Dimulai',
+            'finishing' => 'Finishing & Quality Check',
+            'done' => 'Selesai - Siap Diambil'
+        ];
+    }
+
+    public function getCurrentStepAttribute()
+    {
+        return $this->getTrackingStepsAttribute()[$this->status] ?? 'Status Tidak Diketahui';
+    }
 }
