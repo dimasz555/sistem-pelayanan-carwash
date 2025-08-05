@@ -92,13 +92,13 @@ class CustomerResource extends Resource
                     ->limit(50),
 
                 Tables\Columns\TextColumn::make('total_wash')
-                    ->label('Total Cuci')
+                    ->label('Total Pencucian')
                     ->badge()
                     ->color('success')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('free_wash_count')
-                    ->label('Cuci Gratis')
+                    ->label('Jumlah Cuci Gratis')
                     ->badge()
                     ->color('warning')
                     ->sortable(),

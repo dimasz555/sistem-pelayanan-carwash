@@ -47,12 +47,14 @@ class CreateTransaction extends CreateRecord
             // Update existing customer - increment total_wash
             $customer = Customer::find($data['customer_id']);
             if ($customer) {
-                $customer->increment('total_wash'); // total_wash++
-
-                // Optional: Logika untuk free wash (contoh: setiap 10x cuci dapat 1 gratis)
-                if ($customer->total_wash % 10 == 0) {
+                $customer->increment('total_wash');
+                if ($data['is_free']) {
                     $customer->increment('free_wash_count');
                 }
+                // // Optional: Logika untuk free wash (contoh: setiap 10x cuci dapat 1 gratis)
+                // if ($customer->total_wash % 10 == 0) {
+                //     $customer->increment('free_wash_count');
+                // }
             }
         }
 

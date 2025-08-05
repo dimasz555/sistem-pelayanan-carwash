@@ -135,9 +135,9 @@ class TransactionResource extends Resource
 
                                             return new \Illuminate\Support\HtmlString("
                                             <div class='space-y-1 text-sm'>
+                                            <div><strong>Pencucian Ke:</strong> {$nextWash}</div>
                                                 <div><strong>Total Cuci:</strong> {$totalWash}x</div>
                                                 <div><strong>Cuci Gratis:</strong> {$freeWash}x</div>
-                                                <div><strong>Cuci Ke:</strong> {$nextWash}</div>
                                                 <div class='text-blue-600'><strong>Sisa untuk cuci gratis:</strong> {$toNextFree}x lagi</div>
                                             </div>
                                         ");
@@ -238,27 +238,35 @@ class TransactionResource extends Resource
                                     ->default(0)
                                     ->reactive()
                                     ->afterStateUpdated(function (Set $set, Get $get, $state) {
-                                        $servicePrice = $get('service_price') ?? 0;
-                                        $discountAmount = $state ?? 0;
-
-                                        $set('total_price', max(0, $servicePrice - $discountAmount));
+                                        // Hanya hitung ulang total jika is_free tidak aktif
+                                        if (!$get('is_free')) {
+                                            $servicePrice = (float) ($get('service_price') ?? 0);
+                                            $discountAmount = (float) ($state ?? 0);
+                                            $set('total_price', max(0, $servicePrice - $discountAmount));
+                                        }
                                     })
+                                    ->disabled(fn(Get $get) => $get('is_free')) // Disable input diskon jika transaksi gratis
                                     ->rules([
                                         fn(Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
-                                            $servicePrice = $get('service_price') ?? 0;
-                                            if ($value > $servicePrice) {
+                                            $servicePrice = (float) ($get('service_price') ?? 0);
+                                            $discountValue = (float) ($value ?? 0);
+                                            if ($discountValue > $servicePrice) {
                                                 $fail('Diskon tidak boleh lebih dari harga layanan.');
                                             }
-                                            if ($value < 0) {
+                                            if ($discountValue < 0) {
                                                 $fail('Diskon tidak boleh negatif.');
                                             }
                                         },
                                     ])
                                     ->helperText(function (Get $get): string {
-                                        $servicePrice = $get('service_price');
-                                        $discountAmount = $get('discount_amount');
+                                        if ($get('is_free')) {
+                                            return 'Transaksi gratis - diskon tidak berlaku';
+                                        }
 
-                                        if ($servicePrice && $discountAmount) {
+                                        $servicePrice = (float) ($get('service_price') ?? 0);
+                                        $discountAmount = (float) ($get('discount_amount') ?? 0);
+
+                                        if ($servicePrice > 0 && $discountAmount > 0) {
                                             $percentage = round(($discountAmount / $servicePrice) * 100, 1);
                                             return "Diskon: {$percentage}%";
                                         }
@@ -339,7 +347,20 @@ class TransactionResource extends Resource
                                 Forms\Components\Toggle::make('is_free')
                                     ->label('Transaksi Gratis')
                                     ->default(false)
-                                    ->required(),
+                                    ->required()
+                                    ->reactive()
+                                    ->afterStateUpdated(function (Set $set, Get $get, $state) {
+                                        if ($state) {
+                                            // Jika is_free = true, set total_price menjadi 0
+                                            $set('total_price', 0.00);
+                                        } else {
+                                            // Jika is_free = false, hitung ulang total_price berdasarkan service_price - discount_amount
+                                            $servicePrice = (float) ($get('service_price') ?? 0);
+                                            $discountAmount = (float) ($get('discount_amount') ?? 0);
+                                            $set('total_price', max(0, $servicePrice - $discountAmount));
+                                        }
+                                    }),
+
                                 Forms\Components\Toggle::make('is_paid')
                                     ->label('Sudah Dibayar')
                                     ->default(false)
