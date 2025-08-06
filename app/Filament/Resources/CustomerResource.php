@@ -14,7 +14,8 @@ use Filament\Tables\Table;
 use Filament\Tables\Actions\ExportBulkAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Exports\CustomerExporter;
+use App\Exports\CustomerExporter;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CustomerResource extends Resource
 {
@@ -74,8 +75,7 @@ class CustomerResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama')
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('sapaan')
                     ->label('Sapaan')
@@ -115,7 +115,7 @@ class CustomerResource extends Resource
 
                 Tables\Filters\Filter::make('has_free_wash')
                     ->query(fn(Builder $query): Builder => $query->where('free_wash_count', '>', 0))
-                    ->label('Punya Cuci Gratis'),
+                    ->label('Menggunakan Layanan Cuci Gratis'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
@@ -133,9 +133,18 @@ class CustomerResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('export_selected')
+                        ->label('Export Laporan')
+                        ->icon('heroicon-o-document-arrow-down')
+                        ->color('success')
+                        ->action(function ($records) {
+                            return Excel::download(
+                                new CustomerExporter($records),
+                                'Laporan Pelanggan_' . now()->format('Y-m-d') . '.xlsx'
+                            );
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
-                ExportBulkAction::make()
-                    ->exporter(CustomerExporter::class),
             ])
             ->defaultSort('created_at', 'desc'); // Sort berdasarkan yang paling sering cuci
     }

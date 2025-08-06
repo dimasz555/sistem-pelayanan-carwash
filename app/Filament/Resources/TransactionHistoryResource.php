@@ -13,6 +13,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Exports\TransactionExporter;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionHistoryResource extends Resource
 {
@@ -30,7 +32,7 @@ class TransactionHistoryResource extends Resource
     {
         return parent::getEloquentQuery()
             ->with(['customer', 'service'])
-            ->orderBy('transaction_at', 'desc');
+            ->orderBy('transaction_at', 'asc');
     }
 
     public static function form(Form $form): Form
@@ -59,7 +61,6 @@ class TransactionHistoryResource extends Resource
 
                 Tables\Columns\TextColumn::make('queue_number')
                     ->label('Antrian')
-                    ->sortable()
                     ->badge()
                     ->color('primary'),
 
@@ -118,6 +119,50 @@ class TransactionHistoryResource extends Resource
                 Tables\Columns\TextColumn::make('cashier_name')
                     ->label('Kasir')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('waiting_at')
+                    ->label('Waktu Menunggu')
+                    ->formatStateUsing(function ($state, $record) {
+                        return \Carbon\Carbon::parse($state)
+                            ->locale('id')
+                            ->timezone('Asia/Jakarta')
+                            ->isoFormat('dddd, D MMMM YYYY, HH:mm');
+
+                        return '';
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('processing_at')
+                    ->label('Waktu Diproses')
+                    ->formatStateUsing(function ($state, $record) {
+                        return \Carbon\Carbon::parse($state)
+                            ->locale('id')
+                            ->timezone('Asia/Jakarta')
+                            ->isoFormat('dddd, D MMMM YYYY, HH:mm');
+
+                        return '';
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('done_at')
+                    ->label('Waktu Selesai')
+                    ->formatStateUsing(function ($state, $record) {
+                        return \Carbon\Carbon::parse($state)
+                            ->locale('id')
+                            ->timezone('Asia/Jakarta')
+                            ->isoFormat('dddd, D MMMM YYYY, HH:mm');
+
+                        return '';
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('paid_at')
+                    ->label('Waktu Pembayaran')
+                    ->formatStateUsing(function ($state, $record) {
+                        return \Carbon\Carbon::parse($state)
+                            ->locale('id')
+                            ->timezone('Asia/Jakarta')
+                            ->isoFormat('dddd, D MMMM YYYY, HH:mm');
+
+                        return '';
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\Filter::make('transaction_date')
@@ -167,15 +212,25 @@ class TransactionHistoryResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\ViewAction::make(),
+                Tables\Actions\DeleteAction::make(),
                 // Edit dan Delete bisa dihilangkan untuk riwayat
                 // Tables\Actions\EditAction::make(),
-                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    // Bulk actions untuk export, dll
-                    Tables\Actions\ExportBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('export_selected')
+                        ->label('Export Laporan')
+                        ->icon('heroicon-o-document-arrow-down')
+                        ->color('success')
+                        ->action(function ($records) {
+                            return Excel::download(
+                                new TransactionExporter($records),
+                                'Laporan Transaksi_' . now()->format('Y-m-d') . '.xlsx'
+                            );
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ])
             ->defaultSort('transaction_at', 'desc');
