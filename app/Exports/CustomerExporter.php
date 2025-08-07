@@ -61,8 +61,8 @@ class CustomerExporter implements FromCollection, WithHeadings, WithStyles, With
             $customer->name ?? '',
             $customer->phone ?? '',
             $customer->address ?? '',
-            $customer->total_wash ?? '',
-            $customer->free_wash_count ?? '',
+            $customer->total_wash,
+            $customer->free_wash_count,
         ];
     }
 
@@ -111,11 +111,11 @@ class CustomerExporter implements FromCollection, WithHeadings, WithStyles, With
     public function columnWidths(): array
     {
         return [
-            'A' => 10, 
-            'B' => 25, 
+            'A' => 10,
+            'B' => 25,
             'C' => 20,
-            'D' => 25, 
-            'E' => 20, 
+            'D' => 25,
+            'E' => 20,
             'F' => 20,
         ];
     }
