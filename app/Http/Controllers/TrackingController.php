@@ -23,15 +23,30 @@ class TrackingController extends Controller
 
         $invoice = strtoupper(trim($request->invoice));
 
+        // Redirect to the new route with invoice parameter
+        return redirect()->route('tracking.show', ['invoice' => $invoice]);
+    }
+
+    public function show($invoice)
+    {
+        $invoice = strtoupper(trim($invoice));
+
         $transaction = Transaction::with(['customer', 'service'])
             ->where('invoice', $invoice)
             ->first();
 
         if (!$transaction) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invoice tidak ditemukan'
-            ], 404);
+            // If accessed via AJAX (for API-like response)
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invoice tidak ditemukan'
+                ], 404);
+            }
+            
+            // If accessed directly via URL, redirect back with error
+            return redirect()->route('tracking.index')
+                ->with('error', 'Invoice tidak ditemukan');
         }
 
         // Generate tracking steps based on transaction status and timestamps
@@ -51,12 +66,18 @@ class TrackingController extends Controller
             'steps' => $steps
         ];
 
-        return response()->json([
-            'success' => true,
-            'data' => $data + [
-                'is_completed' => $transaction->status === 'selesai' && $transaction->is_paid
-            ]
-        ]);
+        // If accessed via AJAX
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $data + [
+                    'is_completed' => $transaction->status === 'selesai' && $transaction->is_paid
+                ]
+            ]);
+        }
+
+        // If accessed directly via URL, return view with data
+        return view('pages.tracking.result', compact('data', 'transaction'));
     }
 
     private function generateTrackingSteps($transaction)

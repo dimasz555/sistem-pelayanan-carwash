@@ -390,6 +390,8 @@ class TransactionResource extends Resource
                     ->color('primary')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('invoice')
+                    ->label('Invoice')
+                    ->copyable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('customer_id')
                     ->label('Pelanggan')

@@ -19,10 +19,10 @@ class Dashboard extends BaseDashboard
 {
     use HasFiltersForm;
 
-    public static function canAccess(): bool
-    {
-        return Auth::user()->hasRole('super_admin');
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return Auth::user()->hasRole('super_admin');
+    // }
 
     public function filtersForm(Form $form): Form
     {

@@ -82,7 +82,13 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("orderDate").textContent = data.date;
         document.getElementById("vehicleInfo").textContent = data.vehicle;
         document.getElementById("serviceType").textContent = data.service;
-        document.getElementById("isPaid").textContent = data.isPaid;
+
+        // Check if isPaid element exists before setting it
+        const isPaidElement = document.getElementById("isPaid");
+        if (isPaidElement && data.isPaid) {
+            isPaidElement.textContent = data.isPaid;
+        }
+
         document.getElementById("totalPrice").textContent = data.totalPrice;
         document.getElementById("customerName").textContent =
             data.customer.name;
@@ -112,44 +118,45 @@ document.addEventListener("DOMContentLoaded", function () {
         // Show result
         trackingResult.classList.remove("hidden");
 
-        // Animate progress line
+        // Animate progress line - tunggu sampai elemen fully rendered
         setTimeout(() => {
-            const progressLine = document.getElementById("progressLine");
-            const progressBackground =
-                document.getElementById("progressBackground");
+            updateProgressLine(data, completedSteps);
+        }, 600); // Increased delay untuk memastikan rendering selesai
+    }
 
-            if (progressLine && progressBackground) {
-                if (data.is_completed) {
-                    // Jika semua completed, gunakan kalkulasi berdasarkan jumlah step
-                    // Setiap step memiliki height sekitar 6rem (96px) dengan spacing
-                    const totalSteps = data.steps.length;
-                    const stepHeight = 96; // Estimasi tinggi per step dengan spacing
-                    const progressHeight = (totalSteps - 1) * stepHeight + 24; // +24px untuk offset icon
+    // Alternative sederhana - ubah bagian updateProgressLine menjadi:
 
-                    // Set background line
-                    progressBackground.style.height = progressHeight + "px";
-                    progressBackground.style.bottom = "auto";
-                    progressBackground.style.top = "2rem";
+    function updateProgressLine(data, completedSteps) {
+        const progressLine = document.getElementById("progressLine");
+        const progressBackground =
+            document.getElementById("progressBackground");
 
-                    // Set progress line
-                    progressLine.style.height = progressHeight + "px";
-                    progressLine.style.bottom = "auto";
-                    progressLine.style.top = "2rem";
+        if (progressLine && progressBackground) {
+            if (data.is_completed) {
+                // Gunakan persentase yang disesuaikan dengan screen size
+                let progressPercentage;
+
+                if (window.innerWidth < 640) {
+                    // Mobile
+                    progressPercentage = 85; // Lebih tinggi untuk mobile
+                } else if (window.innerWidth < 1024) {
+                    // Tablet
+                    progressPercentage = 80;
                 } else {
-                    // Reset ke default untuk incomplete
-                    progressBackground.style.height = "";
-                    progressBackground.style.bottom = "2rem";
-                    progressBackground.style.top = "2rem";
-
-                    // Normal calculation untuk yang belum completed
-                    const progressPercentage =
-                        (completedSteps / data.steps.length) * 100;
-                    progressLine.style.height = progressPercentage + "%";
-                    progressLine.style.bottom = "2rem";
-                    progressLine.style.top = "2rem";
+                    // Desktop
+                    progressPercentage = 80;
                 }
+
+                progressLine.style.height = progressPercentage + "%";
+                progressBackground.style.height = progressPercentage + "%";
+            } else {
+                // Normal calculation untuk yang belum completed
+                const progressPercentage =
+                    (completedSteps / data.steps.length) * 100;
+                progressLine.style.height = progressPercentage + "%";
+                progressBackground.style.height = ""; // Reset to default
             }
-        }, 500); // Tunggu lebih lama untuk memastikan elemen sudah render
+        }
     }
 
     function createStepElement(step, index, isLastStep) {
@@ -225,4 +232,35 @@ document.addEventListener("DOMContentLoaded", function () {
                 trackOrder();
             }
         });
+
+    // Handle window resize untuk responsive
+    let resizeTimeout;
+    window.addEventListener("resize", function () {
+        // Debounce resize event
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function () {
+            // Re-calculate progress line jika tracking result sedang ditampilkan
+            if (!trackingResult.classList.contains("hidden")) {
+                const lastSearchData = window.lastTrackingData;
+                if (lastSearchData) {
+                    let completedSteps = 0;
+                    lastSearchData.steps.forEach((step) => {
+                        if (step.status === "completed") {
+                            completedSteps++;
+                        } else if (step.status === "current") {
+                            completedSteps += 0.5;
+                        }
+                    });
+                    updateProgressLine(lastSearchData, completedSteps);
+                }
+            }
+        }, 250);
+    });
+
+    // Store last search data untuk resize handler
+    const originalDisplayTrackingResult = displayTrackingResult;
+    displayTrackingResult = function (data) {
+        window.lastTrackingData = data; // Store untuk resize handler
+        return originalDisplayTrackingResult(data);
+    };
 });
