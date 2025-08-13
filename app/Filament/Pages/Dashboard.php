@@ -27,6 +27,11 @@ class Dashboard extends BaseDashboard
 
     public function filtersForm(Form $form): Form
     {
+        // // Hanya super_admin yang bisa lihat filter
+        // if (!Auth::user()->hasRole('super_admin','koordinator')) {
+        //     return $form->schema([]);
+        // }
+
         return $form
             ->schema([
                 Section::make('Filter Statistik Kendaraan')
@@ -51,7 +56,7 @@ class Dashboard extends BaseDashboard
     public function getWidgets(): array
     {
         $user = Auth::user();
-        
+
         if ($user->hasRole('super_admin')) {
             return [
                 VehicleStatsWidget::class,
@@ -64,7 +69,7 @@ class Dashboard extends BaseDashboard
             ];
         } elseif ($user->hasRole('kasir')) {
             return [
-                // Widget khusus kasir atau kosong
+                IncomeChart::class,
             ];
         }
 

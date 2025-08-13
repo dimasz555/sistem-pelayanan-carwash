@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Exports\TransactionExporter;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Auth;
+
 
 class TransactionHistoryResource extends Resource
 {
@@ -27,7 +29,16 @@ class TransactionHistoryResource extends Resource
     protected static ?string $modelLabel = 'Riwayat Transaksi';
     protected static ?string $pluralModelLabel = 'Riwayat Transaksi';
 
-    // Tampilkan semua transaksi (tidak ada filter)
+    public static function canViewAny(): bool
+    {
+        return Auth::user() && (Auth::user()->hasRole('kasir') || Auth::user()->hasRole('super_admin'));
+    }
+
+    public static function canAccess(): bool
+    {
+        return Auth::user() && (Auth::user()->hasRole('kasir') || Auth::user()->hasRole('super_admin'));
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -214,8 +225,6 @@ class TransactionHistoryResource extends Resource
             ->actions([
                 // Tables\Actions\ViewAction::make(),
                 Tables\Actions\DeleteAction::make(),
-                // Edit dan Delete bisa dihilangkan untuk riwayat
-                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
