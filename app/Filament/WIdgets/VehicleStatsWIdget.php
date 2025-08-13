@@ -16,6 +16,7 @@ class VehicleStatsWidget extends StatsOverviewWidget
     use InteractsWithPageFilters;
 
     protected static ?int $sort = 1;
+    
 
     protected function getStats(): array
     {

@@ -19,10 +19,11 @@ class Dashboard extends BaseDashboard
 {
     use HasFiltersForm;
 
-    // public static function canAccess(): bool
-    // {
-    //     return Auth::user()->hasRole('super_admin');
-    // }
+    public static function canAccess(): bool
+    {
+        // Semua role bisa akses dashboard
+        return Auth::user()->hasAnyRole(['super_admin', 'koordinator', 'kasir']);
+    }
 
     public function filtersForm(Form $form): Form
     {
@@ -49,10 +50,25 @@ class Dashboard extends BaseDashboard
 
     public function getWidgets(): array
     {
-        return [
-            VehicleStatsWidget::class,
-            IncomeChart::class,
-        ];
+        $user = Auth::user();
+        
+        if ($user->hasRole('super_admin')) {
+            return [
+                VehicleStatsWidget::class,
+                IncomeChart::class,
+            ];
+        } elseif ($user->hasRole('koordinator')) {
+            return [
+                // Widget khusus koordinator
+                VehicleStatsWidget::class,
+            ];
+        } elseif ($user->hasRole('kasir')) {
+            return [
+                // Widget khusus kasir atau kosong
+            ];
+        }
+
+        return [];
     }
 
     public function getColumns(): int | string | array

@@ -23,4 +23,8 @@ class Customer extends Model
         return $this->hasMany(Transaction::class);
     }
 
+    public function getFullNameAttribute()
+    {
+        return trim($this->sapaan . ' ' . $this->name);
+    }
 }
