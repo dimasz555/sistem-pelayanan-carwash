@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CustomerResource\Pages;
 use App\Filament\Resources\CustomerResource\RelationManagers;
 use App\Models\Customer;
+use App\Models\Transaction;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
@@ -16,6 +17,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Exports\CustomerExporter;
 use Maatwebsite\Excel\Facades\Excel;
+use Filament\Infolists\Infolist;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Support\Enums\FontWeight;
 
 class CustomerResource extends Resource
 {
@@ -25,6 +31,7 @@ class CustomerResource extends Resource
     protected static ?string $pluralModelLabel = 'Kelola Pelanggan';
     protected static ?string $modelLabel = 'Pelanggan';
     protected static ?string $navigationGroup = 'Data Master';
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -69,6 +76,7 @@ class CustomerResource extends Resource
                     ->numeric(),
             ]);
     }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -118,9 +126,27 @@ class CustomerResource extends Resource
                     ->label('Menggunakan Layanan Cuci Gratis'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
-                    ->iconButton()
-                    ->tooltip('Lihat Detail'),
+                Tables\Actions\Action::make('view_transactions')
+                    ->label('Riwayat Transaksi')
+                    ->icon('heroicon-o-clipboard-document-list')
+                    ->color('info')
+                    ->modalHeading(fn(Customer $record): string => 'Riwayat Transaksi - ' . $record->name)
+                    ->modalContent(function (Customer $record) {
+                        $transactions = $record->transactions()->with('service')->latest()->limit(10)->get();
+
+                        return view('filament.pages.transaction-history', [
+                            'transactions' => $transactions,
+                            'customer' => $record,
+                        ]);
+                    })
+                    ->modalWidth('4xl')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup')
+                    ->slideOver(),
+
+                // Tables\Actions\ViewAction::make()
+                //     ->iconButton()
+                //     ->tooltip('Lihat Detail'),
 
                 Tables\Actions\EditAction::make()
                     ->iconButton()
@@ -146,7 +172,7 @@ class CustomerResource extends Resource
                         ->deselectRecordsAfterCompletion(),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc'); // Sort berdasarkan yang paling sering cuci
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

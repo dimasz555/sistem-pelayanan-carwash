@@ -77,6 +77,7 @@ class TransactionExporter implements FromCollection, WithHeadings, WithStyles, W
                 'menunggu' => 'Menunggu',
                 'proses' => 'Proses',
                 'selesai' => 'Selesai',
+                'batal' => 'Batal',
                 default => 'Tidak Diketahui',
             },
             $transaction->is_free ? 'Ya' : 'Tidak',

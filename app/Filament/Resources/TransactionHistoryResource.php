@@ -110,6 +110,7 @@ class TransactionHistoryResource extends Resource
                             'menunggu' => 'Menunggu',
                             'proses' => 'Proses',
                             'selesai' => 'Selesai',
+                            'batal' => 'Batal',
                             default => 'Tidak Diketahui',
                         };
                     })
@@ -117,6 +118,7 @@ class TransactionHistoryResource extends Resource
                         'warning' => 'menunggu',
                         'primary' => 'proses',
                         'success' => 'selesai',
+                        'danger' => 'batal',
                     ]),
 
                 Tables\Columns\IconColumn::make('is_paid')

@@ -104,11 +104,13 @@ class QueueWaitingResource extends Resource
                         'menunggu' => 'warning',
                         'proses' => 'info',
                         'selesai' => 'success',
+                        'batal' => 'danger'
                     })
                     ->formatStateUsing(fn(string $state): string => match ($state) {
                         'menunggu' => 'Menunggu',
                         'proses' => 'Proses',
                         'selesai' => 'Selesai',
+                        'batal' => 'Batal',
                     }),
 
                 Tables\Columns\TextColumn::make('waiting_at')

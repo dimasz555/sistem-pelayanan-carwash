@@ -343,6 +343,7 @@ class TransactionResource extends Resource
                                         'menunggu' => 'Menunggu',
                                         'proses' => 'Proses',
                                         'selesai' => 'Selesai',
+                                        'batal' => 'Batal',
                                     ])
                                     ->default('menunggu')
                                     ->required(),
@@ -438,6 +439,7 @@ class TransactionResource extends Resource
                             'menunggu' => 'Menunggu',
                             'proses' => 'Proses',
                             'selesai' => 'Selesai',
+                            'batal' => 'Batal',
                             default => 'Tidak Diketahui',
                         };
                     })
@@ -445,6 +447,7 @@ class TransactionResource extends Resource
                         'warning' => 'menunggu',
                         'primary' => 'proses',
                         'success' => 'selesai',
+                        'danger' => 'batal',
                     ]),
                 Tables\Columns\IconColumn::make('is_free')
                     ->label('Cuci Gratis')

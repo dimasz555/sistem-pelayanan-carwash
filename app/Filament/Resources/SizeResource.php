@@ -72,8 +72,13 @@ class SizeResource extends Resource
 
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->iconButton()
+                    ->tooltip('Edit Ukuran'),
+
+                Tables\Actions\DeleteAction::make()
+                    ->iconButton()
+                    ->tooltip('Hapus Ukuran'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
