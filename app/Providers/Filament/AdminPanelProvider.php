@@ -23,6 +23,8 @@ use Filament\Navigation\NavigationGroup;
 use Filament\Notifications\NotificationServiceProvider;
 use App\Filament\Widgets\VehicleStatsWidget;
 use App\Filament\Widgets\IncomeChart;
+use App\Filament\Widgets\TransactionStatsWidget;
+use App\Filament\Widgets\ServiceUsageChart;
 
 
 class AdminPanelProvider extends PanelProvider
@@ -57,6 +59,8 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\FilamentInfoWidget::class,
                 VehicleStatsWidget::class,
                 IncomeChart::class,
+                TransactionStatsWidget::class,
+                ServiceUsageChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,

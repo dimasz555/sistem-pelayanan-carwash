@@ -127,9 +127,10 @@ class CustomerResource extends Resource
             ])
             ->actions([
                 Tables\Actions\Action::make('view_transactions')
-                    ->label('Riwayat Transaksi')
-                    ->icon('heroicon-o-clipboard-document-list')
-                    ->color('info')
+                    ->icon('heroicon-o-eye') // Ikon mata untuk view
+                    ->iconButton() // Menghilangkan label teks dan hanya menampilkan ikon
+                    ->tooltip('Lihat Riwayat Transaksi') // Tooltip saat hover
+                    ->color('gray') // Menggunakan warna abu-abu default
                     ->modalHeading(fn(Customer $record): string => 'Riwayat Transaksi - ' . $record->name)
                     ->modalContent(function (Customer $record) {
                         $transactions = $record->transactions()->with('service')->latest()->limit(10)->get();
@@ -143,10 +144,6 @@ class CustomerResource extends Resource
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Tutup')
                     ->slideOver(),
-
-                // Tables\Actions\ViewAction::make()
-                //     ->iconButton()
-                //     ->tooltip('Lihat Detail'),
 
                 Tables\Actions\EditAction::make()
                     ->iconButton()

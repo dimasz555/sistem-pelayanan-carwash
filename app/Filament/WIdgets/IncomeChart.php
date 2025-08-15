@@ -4,54 +4,55 @@ namespace App\Filament\Widgets;
 
 use App\Models\Transaction;
 use Filament\Widgets\ChartWidget;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Form;
 
 class IncomeChart extends ChartWidget
 {
-    protected static ?int $sort = 2;
+    use InteractsWithPageFilters;
+
+    protected static ?int $sort = 3;
     protected static ?string $heading = 'Grafik Pemasukan';
-
-    public ?string $filter = 'this_month';
-
-    protected function getFilters(): ?array
-    {
-        return [
-            'today' => 'Hari Ini',
-            'yesterday' => 'Kemarin',
-            'this_week' => 'Minggu Ini',
-            'last_week' => 'Minggu Lalu',
-            'this_month' => 'Bulan Ini',
-            'last_month' => 'Bulan Lalu',
-            // 'this_quarter' => '3 Bulan Terakhir',
-            'this_year' => 'Tahun Ini',
-            'last_year' => 'Tahun Lalu',
-            'last_30_days' => '30 Hari Terakhir',
-            // 'last_90_days' => '90 Hari Terakhir',
-        ];
-    }
+    protected int | string | array $columnSpan = 'full';
 
     protected function getData(): array
     {
-        // Set locale Indonesia untuk seluruh widget
         Carbon::setLocale('id');
 
-        // Ambil filter dari widget internal
-        $period = $this->filter ?? 'this_month';
+        // Ambil filter dari dashboard
+        $startDate = $this->filters['startDate'] ?? now()->startOfMonth();
+        $endDate = $this->filters['endDate'] ?? now();
 
-        // Tentukan rentang tanggal berdasarkan periode yang dipilih
-        [$start, $end, $trendPeriod, $labelFormat] = $this->getPeriodRange($period);
+        // Convert to Carbon if string
+        $start = Carbon::parse($startDate)->startOfDay();
+        $end = Carbon::parse($endDate)->endOfDay();
 
-        // Build query dengan pengecekan kolom
+        // Tentukan period berdasarkan rentang tanggal
+        $days = $start->diffInDays($end);
+
+        if ($days <= 1) {
+            $trendPeriod = 'perHour';
+            $labelFormat = 'H:i';
+        } elseif ($days <= 31) {
+            $trendPeriod = 'perDay';
+            $labelFormat = 'd M';
+        } elseif ($days <= 93) {
+            $trendPeriod = 'perWeek';
+            $labelFormat = 'W/Y';
+        } else {
+            $trendPeriod = 'perMonth';
+            $labelFormat = 'M Y';
+        }
+
+        // Build query
         $query = Transaction::query()->where('is_paid', true);
         $hasColumn = Schema::hasColumn('transactions', 'total_price');
 
         if ($hasColumn) {
-            // Jika ada kolom total_price, gunakan Trend
+            // Gunakan Trend jika ada kolom total_price
             $data = Trend::query($query)
                 ->between(start: $start, end: $end)
                 ->{$trendPeriod}()
@@ -63,7 +64,7 @@ class IncomeChart extends ChartWidget
 
             $dataPoints = $data->map(fn(TrendValue $value) => $value->aggregate);
         } else {
-            // Jika tidak ada kolom total_price, hitung manual
+            // Hitung manual jika tidak ada kolom total_price
             [$dataPoints, $labels] = $this->getManualData($start, $end, $trendPeriod, $labelFormat);
         }
 
@@ -82,90 +83,8 @@ class IncomeChart extends ChartWidget
         ];
     }
 
-    private function getPeriodRange(string $period): array
-    {
-        // Gunakan timezone Jakarta
-        $now = now('Asia/Jakarta');
-
-        return match ($period) {
-            'today' => [
-                $now->copy()->startOfDay(),
-                $now->copy()->endOfDay(),
-                'perHour',
-                'H:i'
-            ],
-            'yesterday' => [
-                $now->copy()->subDay()->startOfDay(),
-                $now->copy()->subDay()->endOfDay(),
-                'perHour',
-                'H:i'
-            ],
-            'this_week' => [
-                $now->copy()->startOfWeek(Carbon::MONDAY), // Mulai dari Senin
-                $now->copy()->endOfWeek(Carbon::SUNDAY),   // Sampai Minggu
-                'perDay',
-                'D, d M'
-            ],
-            'last_week' => [
-                $now->copy()->subWeek()->startOfWeek(Carbon::MONDAY),
-                $now->copy()->subWeek()->endOfWeek(Carbon::SUNDAY),
-                'perDay',
-                'D, d M'
-            ],
-            'this_month' => [
-                $now->copy()->startOfMonth(),
-                $now->copy()->endOfMonth(),
-                'perDay',
-                'd M'
-            ],
-            'last_month' => [
-                $now->copy()->subMonth()->startOfMonth(),
-                $now->copy()->subMonth()->endOfMonth(),
-                'perDay',
-                'd M'
-            ],
-            // 'this_quarter' => [
-            //     $now->copy()->startOfQuarter(),
-            //     $now->copy()->endOfQuarter(),
-            //     'perWeek',
-            //     'W/Y'
-            // ],
-            'this_year' => [
-                $now->copy()->startOfYear(),
-                $now->copy()->endOfYear(),
-                'perMonth',
-                'M Y'
-            ],
-            'last_year' => [
-                $now->copy()->subYear()->startOfYear(),
-                $now->copy()->subYear()->endOfYear(),
-                'perMonth',
-                'M Y'
-            ],
-            'last_30_days' => [
-                $now->copy()->subDays(30),
-                $now->copy(),
-                'perDay',
-                'd M'
-            ],
-            // 'last_90_days' => [
-            //     $now->copy()->subDays(90),
-            //     $now->copy(),
-            //     'perWeek',
-            //     'W/Y'
-            // ],
-            default => [
-                $now->copy()->startOfMonth(),
-                $now->copy()->endOfMonth(),
-                'perDay',
-                'd M'
-            ],
-        };
-    }
-
     private function formatLabel(string $date, string $trendPeriod, string $labelFormat): string
     {
-        // Convert ke timezone Jakarta dan set locale Indonesia
         $carbon = Carbon::parse($date)->setTimezone('Asia/Jakarta');
         Carbon::setLocale('id');
 
@@ -187,12 +106,11 @@ class IncomeChart extends ChartWidget
             ->get();
 
         $groupedData = $transactions->groupBy(function ($transaction) use ($trendPeriod) {
-            // Convert ke timezone Jakarta
             $date = Carbon::parse($transaction->transaction_at)->setTimezone('Asia/Jakarta');
             return match ($trendPeriod) {
                 'perHour' => $date->format('Y-m-d H:00:00'),
                 'perDay' => $date->format('Y-m-d'),
-                'perWeek' => $date->startOfWeek(Carbon::MONDAY)->format('Y-m-d'), // Gunakan tanggal awal minggu
+                'perWeek' => $date->startOfWeek(Carbon::MONDAY)->format('Y-m-d'),
                 'perMonth' => $date->format('Y-m'),
                 default => $date->format('Y-m-d'),
             };
@@ -200,23 +118,22 @@ class IncomeChart extends ChartWidget
 
         $dataPoints = [];
         $labels = [];
-
-        // Sort keys untuk urutan yang benar
         $sortedKeys = collect($groupedData->keys())->sort()->toArray();
-
-        // Set locale Indonesia
         Carbon::setLocale('id');
 
         foreach ($sortedKeys as $periodKey) {
             $periodTransactions = $groupedData[$periodKey];
 
             $total = $periodTransactions->sum(function ($transaction) {
+                // Cek apakah ada total_price, jika tidak hitung dari service price
+                if (isset($transaction->total_price) && $transaction->total_price > 0) {
+                    return $transaction->total_price;
+                }
                 return $transaction->service ? $transaction->service->price : 0;
             });
 
             $dataPoints[] = $total;
 
-            // Format label dengan timezone Jakarta
             $labels[] = match ($trendPeriod) {
                 'perHour' => Carbon::createFromFormat('Y-m-d H:i:s', $periodKey)
                     ->setTimezone('Asia/Jakarta')
@@ -244,7 +161,6 @@ class IncomeChart extends ChartWidget
     {
         return 'line';
     }
-
 
     protected function getPollingInterval(): ?string
     {
