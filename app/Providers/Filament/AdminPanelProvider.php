@@ -2,7 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Profile;
 use Filament\Http\Middleware\Authenticate;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -17,6 +19,13 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Navigation\NavigationGroup;
+use Filament\Notifications\NotificationServiceProvider;
+use App\Filament\Widgets\VehicleStatsWidget;
+use App\Filament\Widgets\IncomeChart;
+use App\Filament\Widgets\TransactionStatsWidget;
+use App\Filament\Widgets\ServiceUsageChart;
+
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -25,20 +34,33 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path('panel')
+            ->databaseNotifications()
             ->login()
+            ->navigationGroups([
+                NavigationGroup::make('Data Master')
+                    ->collapsible(),
+                NavigationGroup::make('Transaksi')
+                    ->collapsible(),
+                NavigationGroup::make('Antrian')
+                    ->collapsible(),
+            ])
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::hex('#0040D4'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                Profile::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
+                VehicleStatsWidget::class,
+                IncomeChart::class,
+                TransactionStatsWidget::class,
+                ServiceUsageChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -50,6 +72,9 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+            ])
+            ->plugins([
+                FilamentShieldPlugin::make(),
             ])
             ->authMiddleware([
                 Authenticate::class,
