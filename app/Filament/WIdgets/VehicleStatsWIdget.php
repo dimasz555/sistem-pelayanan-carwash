@@ -53,7 +53,7 @@ class VehicleStatsWidget extends StatsOverviewWidget
             })
             ->count();
 
-        // Hitung omset - cek apakah kolom total_price ada
+        // Hitung omset
         $omset = 0;
         $hasColumn = Schema::hasColumn('transactions', 'total_price');
 
