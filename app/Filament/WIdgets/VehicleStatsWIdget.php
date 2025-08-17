@@ -81,12 +81,12 @@ class VehicleStatsWidget extends StatsOverviewWidget
                 ->descriptionIcon('heroicon-m-queue-list')
                 ->color('primary'),
 
-            Stat::make('Mobil Masuk', number_format($totalMobil))
+            Stat::make('Total Mobil', number_format($totalMobil))
                 ->description('Total kendaraan mobil')
                 ->descriptionIcon('heroicon-m-truck')
                 ->color('info'),
 
-            Stat::make('Motor Masuk', number_format($totalMotor))
+            Stat::make('Total Motor', number_format($totalMotor))
                 ->description('Total kendaraan motor')
                 ->descriptionIcon('heroicon-m-cog-6-tooth')
                 ->color('warning'),
