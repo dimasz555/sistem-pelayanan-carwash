@@ -14,7 +14,7 @@ class ServiceUsageChart extends ChartWidget
     use InteractsWithPageFilters;
 
     protected static ?int $sort = 4;
-    protected static ?string $heading = 'Grafik Layanan Yang Digunakan';
+    protected static ?string $heading = 'Grafik Layanan yang Digunakan';
     protected int | string | array $columnSpan = 'full';
 
     protected function getData(): array
