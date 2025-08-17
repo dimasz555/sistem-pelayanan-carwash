@@ -11,10 +11,6 @@ jobs:
     # Checkout the repository
     - name: 🚚 Get latest code
       uses: actions/checkout@v4
-
-    # Copy env
-    - name: 📂 Copy .env file for production
-      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
     
     - name: 📂 Sync project files 
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
