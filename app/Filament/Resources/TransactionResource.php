@@ -46,13 +46,24 @@ class TransactionResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        $query = parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
-            ->with(['customer', 'service'])
-            ->whereDate('transaction_at', Carbon::today())
-            ->orderBy('queue_number', 'desc');
+            ->with(['customer', 'service']);
+
+        // // Cek apakah ada filter tanggal yang aktif
+        // // Jika tidak ada filter tanggal, tampilkan data hari ini saja
+        // if (
+        //     !request()->has('tableFilters') ||
+        //     !isset(request()->get('tableFilters')['transaction_date']) ||
+        //     empty(array_filter(request()->get('tableFilters')['transaction_date']))
+        // ) {
+
+        //     $query->whereDate('transaction_at', Carbon::today());
+        // }
+
+        return $query->orderBy('queue_number', 'desc');
     }
 
     public static function form(Form $form): Form
@@ -502,12 +513,19 @@ class TransactionResource extends Resource
 
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\Filter::make('today_only')
+                    ->label('Tampilkan Hari Ini Saja')
+                    ->toggle()
+                    ->default(true)
+                    ->query(function (Builder $query): Builder {
+                        return $query->whereDate('transaction_at', Carbon::today());
+                    }),
                 Tables\Filters\TernaryFilter::make('is_paid')
                     ->label('Status Pembayaran')
                     ->trueLabel('Sudah Lunas')
                     ->falseLabel('Belum Lunas')
                     ->native(false),
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Action::make('paid_done')

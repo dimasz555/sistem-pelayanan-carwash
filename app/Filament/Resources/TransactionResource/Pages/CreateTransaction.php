@@ -7,9 +7,11 @@ use App\Models\Customer;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use App\Events\TransactionCreated;
+use App\Models\User;
 
 
 class CreateTransaction extends CreateRecord
@@ -74,6 +76,16 @@ class CreateTransaction extends CreateRecord
     protected function afterCreate(): void
     {
         event(new TransactionCreated($this->record));
+
+        Notification::make()
+            ->info()
+            ->title('Ada Antrian Kendaraan Baru!')
+
+            ->body('Nomor Invoice: ' . $this->record->invoice . ' | Antrian: ' . $this->record->queue_number)
+            ->sendToDatabase(User::whereHas('roles', function ($query) {
+                $query->where('name', 'koordinator');
+            })->get());
+
         Notification::make()
             ->title('Transaksi berhasil dibuat')
             ->body('Nomor Invoice: ' . $this->record->invoice . ' | Antrian: ' . $this->record->queue_number)

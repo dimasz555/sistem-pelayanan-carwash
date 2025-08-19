@@ -182,11 +182,9 @@ class QueueProcessingResource extends Resource
                             ->success()
                             ->send();
                     }),
-
-                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([])
-            ->poll('30s'); // Auto refresh setiap 30 detik
+            ->poll('30s');
     }
     public static function getRelations(): array
     {
