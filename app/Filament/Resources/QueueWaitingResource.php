@@ -179,16 +179,14 @@ class QueueWaitingResource extends Resource
 
                         Notification::make()
                             ->title('Berhasil!')
-                            ->body('Status cucian berhasil diubah menjadi "Sedang Diproses"')
+                            ->body('Status kendaraan berhasil diubah menjadi "Diproses"')
                             ->success()
                             ->send();
                     }),
 
-
-                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([])
-            ->poll('30s'); // Auto refresh setiap 30 detik
+            ->poll('30s');
     }
 
     public static function getRelations(): array

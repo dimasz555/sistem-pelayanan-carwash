@@ -54,6 +54,6 @@ class User extends Authenticatable implements FilamentUser
         if (app()->environment('local')) {
             return true;
         }
-        return str_ends_with($this->email, '@jowin.com') && $this->hasVerifiedEmail();
+        return str_ends_with($this->email, '@wablitz.com');
     }
 }
