@@ -247,7 +247,6 @@ class Dashboard extends BaseDashboard
         } elseif ($user->hasRole('koordinator')) {
             return [
                 VehicleStatsWidget::class,
-                TransactionStatsWidget::class,
                 ServiceUsageChart::class,
             ];
         } elseif ($user->hasRole('kasir')) {
