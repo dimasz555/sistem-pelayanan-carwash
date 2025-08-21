@@ -6,6 +6,7 @@ use App\Filament\Resources\QueueProcessingResource\Pages;
 use App\Filament\Resources\QueueProcessingResource\RelationManagers;
 use App\Models\QueueProcessing;
 use App\Models\Transaction;
+use App\Events\VehicleDone;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -96,7 +97,7 @@ class QueueProcessingResource extends Resource
                     ->label('Layanan')
                     ->searchable(),
 
-               Tables\Columns\TextColumn::make('status')
+                Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
@@ -175,6 +176,7 @@ class QueueProcessingResource extends Resource
                             'status' => 'selesai',
                             'done_at' => now(),
                         ]);
+                        event(new VehicleDone($record));
 
                         Notification::make()
                             ->title('Berhasil!')

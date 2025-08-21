@@ -7,6 +7,7 @@ use App\Filament\Resources\TransactionResource\RelationManagers;
 use Illuminate\Support\Carbon;
 use App\Models\Transaction;
 use App\Models\Customer;
+use App\Events\TransactionPaid;
 use Filament\Forms\Set;
 use Filament\Forms\Get;
 use Filament\Forms;
@@ -30,6 +31,7 @@ class TransactionResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
     protected static ?string $navigationGroup = 'Transaksi';
     protected static ?string $navigationLabel = 'Kelola Transaksi';
+    protected static ?string $pluralModelLabel = 'Kelola Transaksi';
     protected static ?string $modelLabel = 'Transaksi';
     protected static ?int $navigationSort = 1;
     // protected static ?string $recordTitleAttribute = 'invoice';
@@ -535,6 +537,7 @@ class TransactionResource extends Resource
                             'is_paid' => true,
                             'paid_at' => now(),
                         ]);
+                        event(new TransactionPaid($record));
                         Notification::make()
                             ->title('Transaksi ditandai sebagai lunas.')
                             ->success()

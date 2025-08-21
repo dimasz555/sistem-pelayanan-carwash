@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
-use App\Events\TransactionCreated; // Sesuaikan nama
-use App\Listeners\SendWhatsAppTransaction; // Sesuaikan nama
+use App\Events\TransactionCreated;
+use App\Events\TransactionPaid;
+use App\Events\VehicleDone;
+use App\Listeners\SendWhatsAppTransaction;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -15,7 +17,13 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         TransactionCreated::class => [
-            SendWhatsAppTransaction::class,
+            SendWhatsAppTransaction::class . '@handleCreated',
+        ],
+        TransactionPaid::class => [
+            SendWhatsAppTransaction::class . '@handlePaid',
+        ],
+        VehicleDone::class => [
+            SendWhatsAppTransaction::class . '@handleVehicleDone',
         ],
     ];
 
