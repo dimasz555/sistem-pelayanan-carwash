@@ -27,10 +27,11 @@ class QueueCompletedResource extends Resource
     protected static ?string $modelLabel = 'Antrian Selesai';
     protected static ?string $navigationGroup = 'Antrian';
 
-    // public static function canAccess(): bool
-    // {
-    //     return Auth::user()->hasRole('koordinator');
-    // }
+    public static function canAccess(): bool
+    {
+        return Auth::user() && (Auth::user()->hasRole('koordinator') || Auth::user()->hasRole('super_admin'));
+    }
+
 
     public static function getEloquentQuery(): Builder
     {
@@ -158,8 +159,7 @@ class QueueCompletedResource extends Resource
                     ->falseLabel('Belum Lunas')
                     ->native(false),
             ])
-            ->actions([
-            ])
+            ->actions([])
             ->bulkActions([])
             ->poll('30s');
     }
