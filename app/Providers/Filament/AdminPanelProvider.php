@@ -40,9 +40,9 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make('Data Master')
                     ->collapsible(),
-                NavigationGroup::make('Transaksi')
-                    ->collapsible(),
                 NavigationGroup::make('Antrian')
+                    ->collapsible(),
+                NavigationGroup::make('Transaksi')
                     ->collapsible(),
             ])
             ->colors([

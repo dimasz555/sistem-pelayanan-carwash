@@ -29,15 +29,15 @@ class TransactionHistoryResource extends Resource
     protected static ?string $modelLabel = 'Riwayat Transaksi';
     protected static ?string $pluralModelLabel = 'Riwayat Transaksi';
 
-    public static function canViewAny(): bool
-    {
-        return Auth::user() && (Auth::user()->hasRole('kasir') || Auth::user()->hasRole('super_admin'));
-    }
+    // public static function canViewAny(): bool
+    // {
+    //     return Auth::user() && (Auth::user()->hasRole('kasir') || Auth::user()->hasRole('super_admin'));
+    // }
 
-    public static function canAccess(): bool
-    {
-        return Auth::user() && (Auth::user()->hasRole('kasir') || Auth::user()->hasRole('super_admin'));
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return Auth::user() && (Auth::user()->hasRole('kasir') || Auth::user()->hasRole('super_admin'));
+    // }
 
     public static function getEloquentQuery(): Builder
     {

@@ -36,15 +36,15 @@ class TransactionResource extends Resource
     protected static ?int $navigationSort = 1;
     // protected static ?string $recordTitleAttribute = 'invoice';
 
-    public static function canViewAny(): bool
-    {
-        return Auth::user() && Auth::user()->hasRole('kasir');
-    }
+    // public static function canViewAny(): bool
+    // {
+    //     return Auth::user() && Auth::user()->hasRole('kasir');
+    // }
 
-    public static function canAccess(): bool
-    {
-        return Auth::user() && Auth::user()->hasRole('kasir');
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return Auth::user() && Auth::user()->hasRole('kasir');
+    // }
 
     public static function getEloquentQuery(): Builder
     {

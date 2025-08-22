@@ -27,10 +27,10 @@ class QueueWaitingResource extends Resource
     protected static ?string $modelLabel = 'Antrian Menunggu';
     protected static ?string $navigationGroup = 'Antrian';
 
-    public static function canAccess(): bool
-    {
-        return Auth::user()->hasRole('koordinator');
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return Auth::user()->hasRole('koordinator');
+    // }
 
 
     public static function getEloquentQuery(): Builder
