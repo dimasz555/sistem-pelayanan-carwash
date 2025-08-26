@@ -47,8 +47,11 @@ class IncomeChart extends ChartWidget
             $labelFormat = 'M Y';
         }
 
-        // Build query
-        $query = Transaction::query()->where('is_paid', true);
+        // Build query dengan validasi is_free = false dan is_paid = true
+        $query = Transaction::query()
+            ->where('is_paid', true)
+            ->where('is_free', false);
+
         $hasColumn = Schema::hasColumn('transactions', 'total_price');
 
         if ($hasColumn) {
@@ -99,8 +102,10 @@ class IncomeChart extends ChartWidget
 
     private function getManualData(Carbon $start, Carbon $end, string $trendPeriod, string $labelFormat): array
     {
+        // Tambahkan kondisi is_free = false pada query manual
         $transactions = Transaction::query()
             ->where('is_paid', true)
+            ->where('is_free', false)
             ->whereBetween('transaction_at', [$start, $end])
             ->with('service')
             ->get();
