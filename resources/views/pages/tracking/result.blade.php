@@ -22,6 +22,27 @@
 
     <!-- Tracking Result -->
     <div class="animate-slide-up mx-4">
+        <!-- Free Transaction Alert -->
+        @if ($data['isFree'])
+            <div
+                class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl shadow-xl p-6 mb-6 text-white animate-bounce-gentle">
+                <div class="flex items-center justify-center mb-2">
+                    <div class="bg-white bg-opacity-20 rounded-full p-3 mr-4">
+                        <span class="text-3xl">🎁</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-1">Selamat! Transaksi Anda GRATIS!</h3>
+                        <p class="text-green-100 text-sm">Anda mendapat layanan pencucian gratis dari kami</p>
+                    </div>
+                </div>
+                <div class="bg-white bg-opacity-10 rounded-lg p-3 mt-4 text-black">
+                    <p class="text-center text-sm font-medium">
+                        ✨ Terima kasih telah menjadi pelanggan setia kami ✨
+                    </p>
+                </div>
+            </div>
+        @endif
+
         <!-- Order Info -->
         <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -35,8 +56,14 @@
                     </div>
                 </div>
                 <div class="text-right">
-                    <div class="text-2xl font-bold text-blue-600">{{ $data['totalPrice'] }}</div>
-                    <div class="text-sm text-gray-500">Total Pembayaran</div>
+                    @if ($data['isFree'])
+                        <div class="text-2xl font-bold text-green-600">GRATIS</div>
+                        <div class="text-sm text-gray-500">Transaksi Gratis</div>
+                        <div class="text-xs text-gray-400 line-through">{{ $data['totalPrice'] }}</div>
+                    @else
+                        <div class="text-2xl font-bold text-blue-600">{{ $data['totalPrice'] }}</div>
+                        <div class="text-sm text-gray-500">Total Pembayaran</div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -165,6 +192,25 @@
             }
         }
 
+        @keyframes bounce-gentle {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-5px);
+            }
+
+            60% {
+                transform: translateY(-3px);
+            }
+        }
+
         .animate-fade-in {
             animation: fade-in 0.6s ease-out forwards;
             opacity: 0;
@@ -173,6 +219,10 @@
         .animate-slide-up {
             animation: slide-up 0.8s ease-out forwards;
             opacity: 0;
+        }
+
+        .animate-bounce-gentle {
+            animation: bounce-gentle 2s infinite;
         }
     </style>
 @endpush

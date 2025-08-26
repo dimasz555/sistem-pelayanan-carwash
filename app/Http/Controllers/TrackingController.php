@@ -59,6 +59,7 @@ class TrackingController extends Controller
             'service' => $transaction->service->name ?? 'Service tidak tersedia',
             'totalPrice' => 'Rp ' . number_format($transaction->total_price, 0, ',', '.'),
             'isPaid' => $transaction->is_paid ? 'Sudah Dibayar' : 'Belum Dibayar',
+            'isFree' => $transaction->is_free,
             'customer' => [
                 'name' => $transaction->customer->name ?? 'Customer tidak tersedia',
                 'phone' => $transaction->customer->phone ?? '-'
