@@ -30,8 +30,8 @@ class Transaction extends Model
         'paid_at',
         'total_price',
         'service_price',
-        'discount_amount',
-        'discount_reason',
+        'promo_id',
+        'promo_discount',
     ];
 
     public function customer()
@@ -44,40 +44,48 @@ class Transaction extends Model
         return $this->belongsTo(Service::class);
     }
 
+    public function promo(): BelongsTo
+    {
+        return $this->belongsTo(Promo::class);
+    }
+
     /**
      * Calculate total price after discount
      */
     public function calculateTotalPrice(): float
     {
         $servicePrice = $this->service_price ?? 0;
-        $discountAmount = $this->discount_amount ?? 0;
+        $discountAmount = $this->promo_discount ?? 0;
 
         return max(0, $servicePrice - $discountAmount);
+    }
+
+    public function getDiscountPercentageAttribute(): float
+    {
+        if (!$this->service_price || !$this->promo_discount) {
+            return 0;
+        }
+
+        return round(($this->promo_discount / $this->service_price) * 100, 2);
     }
 
     /**
      * Auto calculate total price before saving
      */
+
     protected static function boot()
     {
         parent::boot();
 
         static::saving(function ($transaction) {
-            // Auto calculate total price before saving
+            if ($transaction->promo && $transaction->promo->isAvailable()) {
+                $transaction->promo_discount = $transaction->promo->calculateDiscount($transaction->service_price);
+            } else {
+                $transaction->promo_discount = 0;
+            }
+
             $transaction->total_price = $transaction->calculateTotalPrice();
         });
-    }
-
-    /**
-     * Get discount percentage if needed for display
-     */
-    public function getDiscountPercentageAttribute(): float
-    {
-        if (!$this->service_price || !$this->discount_amount) {
-            return 0;
-        }
-
-        return round(($this->discount_amount / $this->service_price) * 100, 2);
     }
 
     public function getTrackingStepsAttribute()

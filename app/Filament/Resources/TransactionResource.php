@@ -249,80 +249,136 @@ class TransactionResource extends Resource
                     ])
                     ->columnSpanFull(),
 
-                Forms\Components\Section::make('Diskon & Total')
+                Forms\Components\Section::make('Promo & Diskon')
                     ->schema([
-                        // Row untuk Diskon Amount dan Discount Reason
                         Forms\Components\Grid::make(2)
                             ->schema([
-                                Forms\Components\TextInput::make('discount_amount')
-                                    ->label('Diskon (Rp)')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->default(0)
-                                    ->reactive()
+                                Select::make('promo_id')
+                                    ->label('Pilih Promo')
+                                    ->placeholder('-- Tidak ada promo --')
+                                    ->options(function (Forms\Get $get) {
+                                        $servicePrice = (float) ($get('service_price') ?? 0);
+
+                                        if (!$servicePrice) {
+                                            return [];
+                                        }
+
+                                        return \App\Models\Promo::active()
+                                            ->get()
+                                            ->pluck('name', 'id')
+                                            ->toArray();
+                                    })
+                                    ->live() // PERBAIKAN 1: Ganti reactive() dengan live()
                                     ->afterStateUpdated(function (Set $set, Get $get, $state) {
-                                        // Hanya hitung ulang total jika is_free tidak aktif
-                                        if (!$get('is_free')) {
-                                            $servicePrice = (float) ($get('service_price') ?? 0);
-                                            $discountAmount = (float) ($state ?? 0);
-                                            $set('total_price', max(0, $servicePrice - $discountAmount));
+                                        $servicePrice = (float) ($get('service_price') ?? 0);
+
+                                        if ($state && !$get('is_free') && $servicePrice > 0) {
+                                            $promo = \App\Models\Promo::find($state);
+
+                                            if ($promo && $promo->isAvailable()) {
+                                                $discountAmount = $promo->calculateDiscount($servicePrice);
+                                                $set('promo_discount', $discountAmount);
+                                                $totalPrice = max(0, $servicePrice - $discountAmount);
+                                                $set('total_price', $totalPrice);
+                                            } else {
+                                                // Promo tidak valid atau tidak tersedia
+                                                $set('promo_discount', 0);
+                                                $set('total_price', $servicePrice);
+                                            }
+                                        } else {
+                                            // Tidak ada promo atau transaksi gratis
+                                            $set('promo_discount', 0);
+                                            if (!$get('is_free')) {
+                                                $set('total_price', $servicePrice);
+                                            } else {
+                                                $set('total_price', 0);
+                                            }
                                         }
                                     })
-                                    ->disabled(fn(Get $get) => $get('is_free')) // Disable input diskon jika transaksi gratis
-                                    ->rules([
-                                        fn(Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
-                                            $servicePrice = (float) ($get('service_price') ?? 0);
-                                            $discountValue = (float) ($value ?? 0);
-                                            if ($discountValue > $servicePrice) {
-                                                $fail('Diskon tidak boleh lebih dari harga layanan.');
-                                            }
-                                            if ($discountValue < 0) {
-                                                $fail('Diskon tidak boleh negatif.');
-                                            }
-                                        },
-                                    ])
-                                    ->helperText(function (Get $get): string {
-                                        if ($get('is_free')) {
-                                            return 'Transaksi gratis - diskon tidak berlaku';
+                                    ->disabled(fn(Get $get) => $get('is_free'))
+                                    ->searchable(),
+
+                                Forms\Components\Placeholder::make('promo_info')
+                                    ->label('Info Promo')
+                                    ->content(function (Forms\Get $get): \Illuminate\Contracts\Support\Htmlable {
+                                        $promoId = $get('promo_id');
+                                        $promoDiscount = $get('promo_discount') ?? 0;
+
+                                        if (!$promoId) {
+                                            return new \Illuminate\Support\HtmlString('<em class="text-gray-500">Tidak ada promo dipilih</em>');
                                         }
 
-                                        $servicePrice = (float) ($get('service_price') ?? 0);
-                                        $discountAmount = (float) ($get('discount_amount') ?? 0);
-
-                                        if ($servicePrice > 0 && $discountAmount > 0) {
-                                            $percentage = round(($discountAmount / $servicePrice) * 100, 1);
-                                            return "Diskon: {$percentage}%";
+                                        $promo = \App\Models\Promo::find($promoId);
+                                        if (!$promo) {
+                                            return new \Illuminate\Support\HtmlString('<em class="text-red-500">Promo tidak ditemukan</em>');
                                         }
 
-                                        return '';
-                                    }),
+                                        if (!$promo->isAvailable()) {
+                                            return new \Illuminate\Support\HtmlString('<em class="text-red-500">Promo tidak tersedia atau sudah expired</em>');
+                                        }
 
-                                Forms\Components\TextInput::make('discount_reason')
-                                    ->label('Jenis Diskon')
-                                    ->placeholder('Contoh: Member VIP, Promosi, dll')
-                                    ->maxLength(100),
+                                        $discountText = $promo->value . '%';
+                                        $appliedDiscount = 'Rp ' . number_format($promoDiscount, 0, ',', '.');
+
+                                        return new \Illuminate\Support\HtmlString("
+                            <div class='space-y-2 text-sm'>
+                                <div class='font-medium text-green-700'>{$promo->name}</div>
+                                <div>Diskon: {$discountText}</div>
+                                <div>Potongan Harga: <strong>{$appliedDiscount}</strong></div>
+                                <div class='text-xs text-gray-600'>{$promo->description}</div>
+                            </div>
+                        ");
+                                    })
+                                    ->live(), // PERBAIKAN 2: Tambahkan live() agar update real-time
                             ]),
 
-                        // Total Price dengan tampilan yang lebih besar dan menarik - di tengah
+                        Forms\Components\Hidden::make('promo_discount')
+                            ->default(0)
+                            ->dehydrated(),
+                    ])
+                    ->visible(fn(Get $get) => !$get('is_free')),
+
+                Forms\Components\Section::make('Total Pembayaran')
+                    ->schema([
                         Forms\Components\Grid::make(1)
                             ->schema([
                                 Forms\Components\Placeholder::make('total_display')
                                     ->label('TOTAL PEMBAYARAN')
                                     ->content(function (Get $get): \Illuminate\Contracts\Support\Htmlable {
-                                        $totalPrice = $get('total_price') ?? 0;
+                                        $totalPrice = (float) ($get('total_price') ?? 0); // PERBAIKAN 3: Cast ke float
+                                        $servicePrice = (float) ($get('service_price') ?? 0);
+                                        $promoDiscount = (float) ($get('promo_discount') ?? 0);
+                                        $isFree = $get('is_free');
+
                                         $formattedPrice = 'Rp ' . number_format($totalPrice, 0, ',', '.');
 
+                                        $breakdown = '';
+                                        if (!$isFree && $servicePrice > 0) {
+                                            $formattedServicePrice = 'Rp ' . number_format($servicePrice, 0, ',', '.');
+                                            $breakdown = "<div style='font-size: 0.75rem; color: #6b7280; margin-top: 8px;'>Harga Layanan: {$formattedServicePrice}";
+
+                                            if ($promoDiscount > 0) {
+                                                $formattedDiscount = 'Rp ' . number_format($promoDiscount, 0, ',', '.');
+                                                $breakdown .= "<br>Diskon Promo: -{$formattedDiscount}";
+                                            }
+                                            $breakdown .= "</div>";
+                                        }
+
+                                        $bgColor = $isFree ? '#dcfce7' : ($promoDiscount > 0 ? '#fef3c7' : '#f0f9ff');
+                                        $borderColor = $isFree ? '#16a34a' : ($promoDiscount > 0 ? '#d97706' : '#3b82f6');
+                                        $textColor = $isFree ? '#15803d' : ($promoDiscount > 0 ? '#92400e' : '#1e40af');
+
                                         return new \Illuminate\Support\HtmlString(
-                                            '<div style="text-align: center; padding: 24px; background: linear-gradient(135deg, #f0f9ff 0%, #ecfdf5 100%); border-radius: 12px; border: 2px solid #3b82f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                                <div style="font-size: 2rem; font-weight: bold; color: #1e40af; margin-bottom: 8px;">' . $formattedPrice . '</div>
+                                            '<div style="text-align: center; padding: 24px; background: ' . $bgColor . '; border-radius: 12px; border: 2px solid ' . $borderColor . '; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                                <div style="font-size: 2rem; font-weight: bold; color: ' . $textColor . '; margin-bottom: 8px;">' . $formattedPrice . '</div>
                                 <div style="font-size: 0.875rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;">Total yang harus dibayar</div>
+                                ' . $breakdown . '
                             </div>'
                                         );
                                     })
-                                    ->reactive(),
+                                    ->live(), // PERBAIKAN 4: Tambahkan live() agar total update real-time
                             ]),
 
-                        // Hidden field untuk menyimpan total_price di database
                         Forms\Components\Hidden::make('total_price')
                             ->default(0),
                     ])
@@ -363,7 +419,6 @@ class TransactionResource extends Resource
                             ]),
                     ]),
 
-                // Bagian Pengaturan Pembayaran
                 Forms\Components\Section::make('Pengaturan Pembayaran')
                     ->schema([
                         Forms\Components\Grid::make(2)
@@ -372,16 +427,19 @@ class TransactionResource extends Resource
                                     ->label('Transaksi Gratis')
                                     ->default(false)
                                     ->required()
-                                    ->reactive()
+                                    ->live() // PERBAIKAN 6: Ganti reactive() dengan live()
                                     ->afterStateUpdated(function (Set $set, Get $get, $state) {
                                         if ($state) {
                                             // Jika is_free = true, set total_price menjadi 0
-                                            $set('total_price', 0.00);
+                                            $set('total_price', 0);
+                                            $set('promo_id', null); // Reset promo selection
+                                            $set('promo_discount', 0);
                                         } else {
-                                            // Jika is_free = false, hitung ulang total_price berdasarkan service_price - discount_amount
+                                            // Jika is_free = false, hitung ulang total_price
                                             $servicePrice = (float) ($get('service_price') ?? 0);
-                                            $discountAmount = (float) ($get('discount_amount') ?? 0);
-                                            $set('total_price', max(0, $servicePrice - $discountAmount));
+                                            $promoDiscount = (float) ($get('promo_discount') ?? 0);
+                                            $totalPrice = max(0, $servicePrice - $promoDiscount);
+                                            $set('total_price', $totalPrice);
                                         }
                                     }),
 
@@ -564,7 +622,8 @@ class TransactionResource extends Resource
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->poll('30s');;
     }
 
     public static function getRelations(): array

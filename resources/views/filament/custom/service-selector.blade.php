@@ -75,7 +75,7 @@
 
 <script>
     function updateServiceSelection(serviceId, servicePrice) {
-        // console.log('Updating service selection:', serviceId, servicePrice);
+        console.log('Updating service selection:', serviceId, servicePrice);
 
         // Update service_id field
         updateFieldValue('service_id', serviceId);
@@ -83,10 +83,34 @@
         // Update service_price field  
         updateFieldValue('service_price', servicePrice);
 
+        // Reset promo when service changes (only if not in edit mode)
+        const isEditMode = document.querySelector('input[name="service_selection"]:checked')?.hasAttribute(
+            'data-edit-mode');
+        if (!isEditMode) {
+            resetPromo();
+        }
+
         // Small delay to ensure fields are updated before calculation
         setTimeout(() => {
             recalculateTotal();
-        }, 50);
+            triggerFilamentUpdate();
+        }, 100);
+    }
+
+    function resetPromo() {
+        // Reset promo selection when service changes
+        updateFieldValue('promo_id', '');
+        updateFieldValue('promo_discount', 0);
+
+        // Clear promo select dropdown
+        const promoSelect = document.querySelector('select[name="promo_id"]') ||
+            document.querySelector('[data-field-name="promo_id"] select');
+        if (promoSelect) {
+            promoSelect.value = '';
+            promoSelect.dispatchEvent(new Event('change', {
+                bubbles: true
+            }));
+        }
     }
 
     function updateFieldValue(fieldName, value) {
@@ -96,19 +120,27 @@
         // Method 1: Try to find field with various selectors
         const selectors = [
             `input[name="${fieldName}"]`,
+            `select[name="${fieldName}"]`,
             `input[data-field-name="${fieldName}"]`,
+            `select[data-field-name="${fieldName}"]`,
             `input[wire\\:model="data.${fieldName}"]`,
+            `select[wire\\:model="data.${fieldName}"]`,
             `input[wire\\:model="${fieldName}"]`,
+            `select[wire\\:model="${fieldName}"]`,
             `input[x-model="state.${fieldName}"]`,
+            `select[x-model="state.${fieldName}"]`,
             `input[x-model="${fieldName}"]`,
+            `select[x-model="${fieldName}"]`,
             `[data-field-wrapper="${fieldName}"] input`,
-            `.fi-fo-field-wrp[data-field-name="${fieldName}"] input`
+            `[data-field-wrapper="${fieldName}"] select`,
+            `.fi-fo-field-wrp[data-field-name="${fieldName}"] input`,
+            `.fi-fo-field-wrp[data-field-name="${fieldName}"] select`
         ];
 
         for (const selector of selectors) {
             field = document.querySelector(selector);
             if (field) {
-                // console.log(`Found field ${fieldName} with selector: ${selector}`);
+                console.log(`Found field ${fieldName} with selector: ${selector}`);
                 break;
             }
         }
@@ -134,13 +166,17 @@
             if (window.Livewire && field.hasAttribute('wire:model')) {
                 const wireModel = field.getAttribute('wire:model');
                 try {
-                    window.Livewire.find(field.closest('[wire\\:id]').getAttribute('wire:id')).set(wireModel, value);
+                    const livewireComponent = field.closest('[wire\\:id]');
+                    if (livewireComponent) {
+                        const componentId = livewireComponent.getAttribute('wire:id');
+                        window.Livewire.find(componentId).set(wireModel, value);
+                    }
                 } catch (e) {
                     console.warn('Livewire update failed:', e);
                 }
             }
 
-            // console.log(`Updated ${fieldName}: ${oldValue} -> ${value}`);
+            console.log(`Updated ${fieldName}: ${oldValue} -> ${value}`);
             updated = true;
         } else {
             console.warn(`Field ${fieldName} not found with any selector`);
@@ -152,97 +188,187 @@
     function getFieldValue(fieldName) {
         const selectors = [
             `input[name="${fieldName}"]`,
+            `select[name="${fieldName}"]`,
             `input[data-field-name="${fieldName}"]`,
+            `select[data-field-name="${fieldName}"]`,
             `input[wire\\:model="data.${fieldName}"]`,
+            `select[wire\\:model="data.${fieldName}"]`,
             `input[wire\\:model="${fieldName}"]`,
+            `select[wire\\:model="${fieldName}"]`,
             `input[x-model="state.${fieldName}"]`,
+            `select[x-model="state.${fieldName}"]`,
             `input[x-model="${fieldName}"]`,
+            `select[x-model="${fieldName}"]`,
             `[data-field-wrapper="${fieldName}"] input`,
-            `.fi-fo-field-wrp[data-field-name="${fieldName}"] input`
+            `[data-field-wrapper="${fieldName}"] select`,
+            `.fi-fo-field-wrp[data-field-name="${fieldName}"] input`,
+            `.fi-fo-field-wrp[data-field-name="${fieldName}"] select`
         ];
 
         for (const selector of selectors) {
             const field = document.querySelector(selector);
             if (field) {
-                const value = parseFloat(field.value) || 0;
-                // console.log(`Got ${fieldName} value: ${value}`);
-                return value;
+                // Handle different field types
+                if (field.type === 'checkbox') {
+                    const value = field.checked ? 1 : 0;
+                    console.log(`Got ${fieldName} value (checkbox): ${value}`);
+                    return value;
+                } else if (field.tagName.toLowerCase() === 'select') {
+                    const value = field.value || '';
+                    console.log(`Got ${fieldName} value (select): ${value}`);
+                    return fieldName.includes('_id') ? value : (parseFloat(value) || 0);
+                } else {
+                    const value = parseFloat(field.value) || 0;
+                    console.log(`Got ${fieldName} value: ${value}`);
+                    return value;
+                }
             }
         }
 
-        // console.warn(`Could not get value for field: ${fieldName}`);
-        return 0;
+        // Return default values for specific fields if not found
+        const defaultValues = {
+            'is_free': 0,
+            'promo_discount': 0,
+            'service_price': 0,
+            'total_price': 0,
+            'promo_id': ''
+        };
+
+        const defaultValue = defaultValues[fieldName] !== undefined ? defaultValues[fieldName] : 0;
+
+        // Only warn for critical fields, not optional ones
+        if (!['is_free', 'promo_discount'].includes(fieldName)) {
+            console.warn(`Could not get value for field: ${fieldName}, using default: ${defaultValue}`);
+        } else {
+            console.log(`Field ${fieldName} not found, using default: ${defaultValue}`);
+        }
+
+        return defaultValue;
     }
 
     function recalculateTotal() {
         const servicePrice = getFieldValue('service_price');
-        const discountAmount = getFieldValue('discount_amount');
-        const totalPrice = Math.max(0, servicePrice - discountAmount);
+        const promoDiscount = getFieldValue('promo_discount');
+        const isFree = getFieldValue('is_free');
 
-        // console.log('Recalculating total:', {
-        //     servicePrice,
-        //     discountAmount,
-        //     totalPrice
-        // });
+        let totalPrice = 0;
 
-        updateFieldValue('total_price', totalPrice);
-
-        // Force update of total display
-        setTimeout(() => {
-            triggerTotalDisplayUpdate();
-        }, 100);
-    }
-
-    function triggerTotalDisplayUpdate() {
-        // Try to trigger reactive update for total display
-        const totalField = document.querySelector('input[name="total_price"]') ||
-            document.querySelector('input[data-field-name="total_price"]');
-
-        if (totalField) {
-            // Trigger custom event for Filament reactive fields
-            totalField.dispatchEvent(new CustomEvent('filament-field-updated', {
-                bubbles: true,
-                detail: {
-                    value: totalField.value
-                }
-            }));
+        if (isFree === 1 || isFree === true) {
+            totalPrice = 0;
+        } else {
+            totalPrice = Math.max(0, servicePrice - promoDiscount);
         }
 
-        // Also try to find and update any reactive placeholders
-        const placeholders = document.querySelectorAll('[wire\\:key*="total"], [x-data*="total"]');
-        placeholders.forEach(placeholder => {
-            if (placeholder.__x) {
-                placeholder.__x.updateElements();
+        console.log('Recalculating total:', {
+            servicePrice,
+            promoDiscount,
+            isFree,
+            totalPrice
+        });
+
+        // Only update total_price if it's different from current value
+        const currentTotal = getFieldValue('total_price');
+        if (currentTotal !== totalPrice) {
+            updateFieldValue('total_price', totalPrice);
+        }
+    }
+
+    function triggerFilamentUpdate() {
+        // Trigger Filament/Livewire to update reactive components
+        const event = new CustomEvent('service-selected', {
+            bubbles: true,
+            detail: {
+                timestamp: Date.now()
+            }
+        });
+        document.dispatchEvent(event);
+
+        // Also try to trigger any wire:model updates
+        const wireModelFields = document.querySelectorAll('[wire\\:model]');
+        wireModelFields.forEach(field => {
+            if (field.name === 'service_id' || field.name === 'service_price' || field.name === 'total_price') {
+                field.dispatchEvent(new Event('input', {
+                    bubbles: true
+                }));
             }
         });
     }
 
     // Initialize on page load for edit mode
     document.addEventListener('DOMContentLoaded', function() {
-        // console.log('Service selector loaded');
+        console.log('Service selector loaded');
 
         // Set up initial values
         const checkedRadio = document.querySelector('input[name="service_selection"]:checked');
         if (checkedRadio) {
             const serviceId = checkedRadio.dataset.serviceId;
             const servicePrice = checkedRadio.dataset.servicePrice;
-            // console.log('Found checked service:', serviceId, servicePrice);
-            updateServiceSelection(parseInt(serviceId), parseInt(servicePrice));
+            console.log('Found checked service:', serviceId, servicePrice);
+
+            // Don't reset promo on initial load (for edit mode)
+            updateFieldValue('service_id', parseInt(serviceId));
+            updateFieldValue('service_price', parseInt(servicePrice));
+
+            setTimeout(() => {
+                recalculateTotal();
+                triggerFilamentUpdate();
+            }, 200);
         }
 
-        // Enhanced event listener for discount changes
+        // Enhanced event listener for promo discount changes
+        document.addEventListener('change', function(e) {
+            const target = e.target;
+
+            // Check if this is a promo field
+            if (target.name === 'promo_id' ||
+                target.dataset.fieldName === 'promo_id' ||
+                target.getAttribute('wire:model')?.includes('promo_id')) {
+
+                console.log('Promo changed, will recalculate after promo processing...');
+
+                // Wait longer for promo processing to complete
+                setTimeout(() => {
+                    recalculateTotal();
+                    triggerFilamentUpdate();
+                }, 500); // Increased delay for promo processing
+            }
+
+            // Check if this is a promo discount field
+            if (target.name === 'promo_discount' ||
+                target.dataset.fieldName === 'promo_discount' ||
+                target.getAttribute('wire:model')?.includes('promo_discount')) {
+
+                console.log('Promo discount changed, recalculating...');
+                setTimeout(() => {
+                    recalculateTotal();
+                }, 100);
+            }
+
+            // Check if this is is_free toggle
+            if (target.name === 'is_free' ||
+                target.dataset.fieldName === 'is_free' ||
+                target.getAttribute('wire:model')?.includes('is_free')) {
+
+                console.log('is_free changed, recalculating...');
+                setTimeout(() => {
+                    recalculateTotal();
+                }, 100);
+            }
+        });
+
+        // Also listen for input events (for real-time updates)
         document.addEventListener('input', function(e) {
             const target = e.target;
 
-            // Check if this is a discount field
-            if (target.name === 'discount_amount' ||
-                target.dataset.fieldName === 'discount_amount' ||
-                target.getAttribute('wire:model')?.includes('discount_amount')) {
+            // Check if any calculation-relevant field changed
+            if (target.name === 'promo_discount' ||
+                target.dataset.fieldName === 'promo_discount' ||
+                target.getAttribute('wire:model')?.includes('promo_discount')) {
 
-                console.log('Discount changed, recalculating...');
+                console.log('Promo discount input changed, recalculating...');
                 setTimeout(() => {
                     recalculateTotal();
-                }, 50);
+                }, 150);
             }
         });
 
@@ -250,12 +376,15 @@
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.type === 'attributes' &&
-                    (mutation.attributeName === 'value' || mutation.attributeName ===
-                        'wire:model')) {
+                    (mutation.attributeName === 'value')) {
                     const target = mutation.target;
-                    if (target.name === 'service_price' || target.dataset.fieldName ===
-                        'service_price') {
-                        // console.log('Service price field mutated, recalculating...');
+                    if (target.name === 'service_price' ||
+                        target.dataset.fieldName === 'service_price' ||
+                        target.name === 'promo_discount' ||
+                        target.dataset.fieldName === 'promo_discount') {
+
+                        console.log('Field mutated, recalculating...', target.name || target
+                            .dataset.fieldName);
                         setTimeout(() => {
                             recalculateTotal();
                         }, 100);
@@ -270,29 +399,15 @@
             observer.observe(form, {
                 subtree: true,
                 attributes: true,
-                attributeFilter: ['value', 'wire:model']
+                attributeFilter: ['value']
             });
         }
+
+        // Listen for custom Filament events
+        document.addEventListener('service-selected', function() {
+            console.log('Service selected event triggered');
+        });
     });
-
-    // // Debug function to check field states
-    // window.debugServiceSelector = function() {
-    //     console.log('=== Service Selector Debug ===');
-    //     console.log('Service ID:', getFieldValue('service_id'));
-    //     console.log('Service Price:', getFieldValue('service_price'));
-    //     console.log('Discount Amount:', getFieldValue('discount_amount'));
-    //     console.log('Total Price:', getFieldValue('total_price'));
-
-    //     const checkedRadio = document.querySelector('input[name="service_selection"]:checked');
-    //     if (checkedRadio) {
-    //         console.log('Selected service radio:', {
-    //             id: checkedRadio.dataset.serviceId,
-    //             price: checkedRadio.dataset.servicePrice
-    //         });
-    //     }
-
-    //     console.log('=== End Debug ===');
-    // };
 </script>
 
 <style>
