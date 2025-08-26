@@ -102,7 +102,9 @@ class TransactionHistoryResource extends Resource
                 Tables\Columns\TextColumn::make('vehicle_name')
                     ->label('Nama Kendaraan')
                     ->searchable(),
-
+                Tables\Columns\TextColumn::make('total_price')
+                    ->label('Total Harga')
+                    ->money('idr', true),
                 Tables\Columns\BadgeColumn::make('status')
                     ->label('Status')
                     ->formatStateUsing(function ($state) {

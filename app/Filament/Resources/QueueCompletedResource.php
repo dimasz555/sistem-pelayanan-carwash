@@ -149,7 +149,7 @@ class QueueCompletedResource extends Resource
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\IconColumn::make('is_paid')
-                    ->label('Lunas')
+                    ->label('Status Pembayaran')
                     ->boolean(),
             ])
             ->filters([
@@ -175,8 +175,6 @@ class QueueCompletedResource extends Resource
     {
         return [
             'index' => Pages\ListQueueCompleteds::route('/'),
-            'create' => Pages\CreateQueueCompleted::route('/create'),
-            'edit' => Pages\EditQueueCompleted::route('/{record}/edit'),
         ];
     }
 

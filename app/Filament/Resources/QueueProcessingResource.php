@@ -151,7 +151,7 @@ class QueueProcessingResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\IconColumn::make('is_paid')
-                    ->label('Lunas')
+                    ->label('Status Pembayaran')
                     ->boolean(),
             ])
             ->filters([
@@ -200,8 +200,6 @@ class QueueProcessingResource extends Resource
     {
         return [
             'index' => Pages\ListQueueProcessings::route('/'),
-            'create' => Pages\CreateQueueProcessing::route('/create'),
-            'edit' => Pages\EditQueueProcessing::route('/{record}/edit'),
         ];
     }
 
