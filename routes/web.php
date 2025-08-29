@@ -2,8 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TrackingController;
+use App\Http\Controllers\LandingPageController;
 
-Route::redirect('/', '/tracking');
+Route::get('/', [LandingPageController::class, 'index'])->name('landing-page.index');
 
 Route::get('/tracking', [TrackingController::class, 'index'])
     ->name('tracking.index');

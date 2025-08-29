@@ -150,7 +150,7 @@ class QueueWaitingResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\IconColumn::make('is_paid')
-                    ->label('Lunas')
+                    ->label('Status Pembayaran')
                     ->boolean(),
             ])
             ->filters([
@@ -200,8 +200,6 @@ class QueueWaitingResource extends Resource
     {
         return [
             'index' => Pages\ListQueueWaitings::route('/'),
-            'create' => Pages\CreateQueueWaiting::route('/create'),
-            'edit' => Pages\EditQueueWaiting::route('/{record}/edit'),
         ];
     }
 
