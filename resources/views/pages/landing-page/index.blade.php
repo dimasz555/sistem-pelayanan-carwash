@@ -77,7 +77,7 @@
                     </a>
                     <a href="#carwash"
                         class="px-8 py-4 border-2 border-cream text-cream hover:bg-cream hover:text-coffee font-bold rounded-full transition-all duration-300">
-                        Promo Carwash
+                        Layanan Carwash
                     </a>
                 </div>
             </div>
@@ -203,10 +203,10 @@
             </div>
 
             <div class="grid lg:grid-cols-3 gap-8 mb-16">
-                <!-- Promo 1 -->
+                <!-- Cuci Motor -->
                 <div class="relative group">
                     <div
-                        class="absolute inset-0 bg-gradient-to-r from-orange to-orange/80 rounded-3xl transform rotate-6 group-hover:rotate-3 transition-transform duration-300">
+                        class="absolute inset-0 bg-gradient-to-r from-orange to-orange/80 rounded-3xl transform rotate-2 group-hover:-rotate-1 transition-transform duration-300">
                     </div>
                     <div
                         class="relative bg-cream text-coffee p-8 rounded-3xl shadow-2xl transform group-hover:-translate-y-2 transition-all duration-300">
@@ -215,20 +215,19 @@
                             <img src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=200&h=150&fit=crop"
                                 alt="Motor Wash" class="w-full h-32 object-cover rounded-2xl">
                         </div>
-                        <h3 class="text-2xl font-bold mb-4">Cuci Motor</h3>
-                        <div class="mb-4">
-                            <span class="text-3xl font-bold text-orange">Rp 20.000</span>
-                            <span class="text-lg line-through text-coffee/50 ml-2">Rp 25.000</span>
-                        </div>
-                        <ul class="space-y-2 mb-6 text-coffee/70">
-                            <li>✓ Cuci menyeluruh</li>
-                            <li>✓ Poles body motor</li>
-                            <li>✓ Pembersihan velg</li>
-                        </ul>
+                        <h3
+                            class="text-2xl font-bold mb-4 text-coffee group-hover:text-orange transition-colors duration-500 text-center">
+                            Cuci Motor
+                        </h3>
+                        <p
+                            class="text-coffee/70 group-hover:text-orange/90 transition-colors duration-500 text-center leading-relaxed">
+                            Layanan pencucian motor lengkap dengan pembersihan menyeluruh, poles body hingga mengkilap, dan
+                            perawatan khusus untuk velg agar tampil bersih dan terawat seperti baru.
+                        </p>
                     </div>
                 </div>
 
-                <!-- Promo 2 -->
+                <!-- Cuci Mobil Body -->
                 <div class="relative group">
                     <div
                         class="absolute inset-0 bg-gradient-to-r from-orange to-orange/80 rounded-3xl transform -rotate-3 group-hover:rotate-0 transition-transform duration-300">
@@ -238,23 +237,21 @@
                         <!-- Service Image -->
                         <div class="mb-6 flex justify-center">
                             <img src="https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=200&h=150&fit=crop"
-                                alt="Car Wash" class="w-full h-32 object-cover rounded-2xl">
+                                alt="Car Wash Body" class="w-full h-32 object-cover rounded-2xl">
                         </div>
-                        <h3 class="text-2xl font-bold mb-4">Cuci Mobil</h3>
-                        <div class="mb-4">
-                            <span class="text-3xl font-bold text-orange">Rp 65.000</span>
-                            <span class="text-lg line-through text-coffee/50 ml-2">Rp 85.000</span>
-                        </div>
-                        <ul class="space-y-2 mb-6 text-coffee/70">
-                            <li>✓ Cuci + wax protection</li>
-                            <li>✓ Interior detailing</li>
-                            <li>✓ Poles dashboard</li>
-                            <li>✓ Pewangi premium</li>
-                        </ul>
+                        <h3
+                            class="text-2xl font-bold mb-4 text-coffee group-hover:text-orange transition-colors duration-500 text-center">
+                            Cuci Mobil (Body)
+                        </h3>
+                        <p
+                            class="text-coffee/70 group-hover:text-orange/90 transition-colors duration-500 text-center leading-relaxed">
+                            Fokus pada pembersihan eksterior mobil dengan teknologi foam wash berkualitas tinggi, dilengkapi
+                            dengan perlindungan wax untuk hasil yang mengkilap dan tahan lama.
+                        </p>
                     </div>
                 </div>
 
-                <!-- Promo 3 -->
+                <!-- Cuci Mobil Full -->
                 <div class="relative group">
                     <div
                         class="absolute inset-0 bg-gradient-to-r from-orange to-orange/80 rounded-3xl transform rotate-2 group-hover:-rotate-1 transition-transform duration-300">
@@ -263,19 +260,19 @@
                         class="relative bg-cream text-coffee p-8 rounded-3xl shadow-2xl transform group-hover:-translate-y-2 transition-all duration-300">
                         <!-- Service Image -->
                         <div class="mb-6 flex justify-center">
-                            <img src="https://images.unsplash.com/photo-1493238792000-8113da705763?w=200&h=150&fit=crop"
-                                alt="Quick Wash" class="w-full h-32 object-cover rounded-2xl">
+                            <img src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=200&h=150&fit=crop"
+                                alt="Full Car Wash" class="w-full h-32 object-cover rounded-2xl">
                         </div>
-                        <h3 class="text-2xl font-bold mb-4">Cuci Cepat</h3>
-                        <div class="mb-4">
-                            <span class="text-3xl font-bold text-orange">Rp 20.000</span>
-                            <span class="text-lg line-through text-coffee/50 ml-2">Rp 30.000</span>
-                        </div>
-                        <ul class="space-y-2 mb-6 text-coffee/70">
-                            <li>✓ Cuci cepat 15 menit</li>
-                            <li>✓ Bilas bersih</li>
-                            <li>✓ Lap kering</li>
-                        </ul>
+                        <h3
+                            class="text-2xl font-bold mb-4 text-coffee group-hover:text-orange transition-colors duration-500 text-center">
+                            Cuci Mobil (Full)
+                        </h3>
+                        <p
+                            class="text-coffee/70 group-hover:text-orange/90 transition-colors duration-500 text-center leading-relaxed">
+                            Paket lengkap yang mencakup pembersihan eksterior dan interior secara detail, termasuk vacuum,
+                            poles dashboard, pembersihan jok, dan pewangi premium untuk pengalaman berkendara yang
+                            menyenangkan.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -387,8 +384,8 @@
                     class="bg-gradient-to-br from-coffee/10 to-orange/10 rounded-3xl h-96 flex items-center justify-center relative overflow-hidden">
                     <div class="absolute inset-0 bg-gradient-to-br from-coffee/5 to-orange/5"></div>
                     <iframe class="w-full h-full rounded-3xl border-0"
-                        src="https://maps.google.com/maps?q=pontianak&t=&z=13&ie=UTF8&iwloc=&output=embed" loading="lazy"
-                        referrerpolicy="no-referrer-when-downgrade" allowfullscreen>
+                        src="https://maps.google.com/maps?q=-0.0621904,109.3378415&t=&z=17&ie=UTF8&iwloc=&output=embed"
+                        loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen>
                     </iframe>
                 </div>
             </div>
