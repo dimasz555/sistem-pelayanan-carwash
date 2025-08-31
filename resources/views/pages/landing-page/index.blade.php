@@ -212,7 +212,7 @@
                         class="relative bg-cream text-coffee p-8 rounded-3xl shadow-2xl transform group-hover:-translate-y-2 transition-all duration-300">
                         <!-- Service Image -->
                         <div class="mb-6 flex justify-center">
-                            <img src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=200&h=150&fit=crop"
+                            <img src="https://i.pinimg.com/1200x/90/7a/69/907a696ddf9e1daa821313cbac39b58e.jpg"
                                 alt="Motor Wash" class="w-full h-32 object-cover rounded-2xl">
                         </div>
                         <h3
@@ -236,7 +236,7 @@
                         class="relative bg-cream text-coffee p-8 rounded-3xl shadow-2xl transform group-hover:-translate-y-2 transition-all duration-300">
                         <!-- Service Image -->
                         <div class="mb-6 flex justify-center">
-                            <img src="https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=200&h=150&fit=crop"
+                            <img src="https://images.unsplash.com/photo-1520340356584-f9917d1eea6f"
                                 alt="Car Wash Body" class="w-full h-32 object-cover rounded-2xl">
                         </div>
                         <h3
@@ -260,7 +260,7 @@
                         class="relative bg-cream text-coffee p-8 rounded-3xl shadow-2xl transform group-hover:-translate-y-2 transition-all duration-300">
                         <!-- Service Image -->
                         <div class="mb-6 flex justify-center">
-                            <img src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=200&h=150&fit=crop"
+                            <img src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9"
                                 alt="Full Car Wash" class="w-full h-32 object-cover rounded-2xl">
                         </div>
                         <h3
