@@ -1,21 +1,138 @@
-<!-- resources/views/layouts/home.blade.php -->
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 
 <head>
+    <!-- Meta Tags Dasar -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'BrewWash - Cafe & Carwash Premium')</title>
+    <title>@yield('title', 'Jowin Coffee & Carwash - Ngopi Santai Mobil Bersih | Pontianak')</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description"
+        content="Jowin Coffee & Carwash Pontianak - Nikmati kopi premium sambil kendaraan Anda dicuci dengan teknologi terdepan. Kopi Jowin Rp 15.000, Mie Nyemek Rp 15.000. Buka 08.00-22.00 WIB di Jl. Perdana No. 999">
+    <meta name="keywords"
+        content="jowin coffee, carwash pontianak, kopi pontianak, cuci mobil pontianak, cafe pontianak, kopi jowin, mie nyemek, cuci motor pontianak, coffee carwash">
+    <meta name="author" content="Jowin Coffee & Carwash">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph untuk Media Sosial -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Jowin Coffee & Carwash - Ngopi Santai Mobil Bersih">
+    <meta property="og:description"
+        content="Nikmati kopi premium sambil kendaraan Anda dicuci dengan teknologi terdepan di Pontianak. Kopi Jowin & Mie Nyemek hanya Rp 15.000">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:site_name" content="Jowin Coffee & Carwash">
+    <meta property="og:image" content="{{ asset('assets/icons/icon_jowin.png') }}">
+    <meta property="og:locale" content="id_ID">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Jowin Coffee & Carwash - Ngopi Santai Mobil Bersih">
+    <meta name="twitter:description"
+        content="Nikmati kopi premium sambil kendaraan Anda dicuci dengan teknologi terdepan di Pontianak">
+    <meta name="twitter:image" content="{{ asset('assets/icons/icon_jowin.png') }}">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    <!-- Hreflang -->
+    <link rel="alternate" hreflang="id" href="{{ url()->current() }}">
 
     <!-- Tailwind CSS v4 -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!-- Meta tags untuk SEO -->
-    <meta name="description"
-        content="Jowin Coffee & Carwash - Nikmati kopi premium sambil kendaraan Anda dicuci dengan teknologi terdepan di Pontianak">
-    <meta name="keywords" content="coffee, carwash, pontianak, kopi, cuci mobil">
-
     @stack('styles')
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Jowin Coffee & Carwash",
+      "description": "Kombinasi cafe dan carwash premium di Pontianak. Nikmati kopi premium sambil kendaraan Anda dicuci dengan teknologi terdepan",
+      "url": "{{ url()->current() }}",
+      "telephone": "+62812-3456-7890",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Jl. Perdana No. 999",
+        "addressLocality": "Pontianak",
+        "addressRegion": "Kalimantan Barat",
+        "addressCountry": "ID"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -0.0621904,
+        "longitude": 109.3378415
+      },
+      "openingHours": "Mo-Su 08:00-22:00",
+      "priceRange": "Rp 15.000 - Rp 50.000",
+      "servedCuisine": "Indonesian Coffee",
+      "hasMenu": {
+        "@type": "Menu",
+        "hasMenuSection": [
+          {
+            "@type": "MenuSection",
+            "name": "Minuman",
+            "hasMenuItem": {
+              "@type": "MenuItem",
+              "name": "Kopi Jowin",
+              "description": "Kopi dengan rasa yang khas dan aroma yang menggugah selera",
+              "offers": {
+                "@type": "Offer",
+                "price": "15000",
+                "priceCurrency": "IDR"
+              }
+            }
+          },
+          {
+            "@type": "MenuSection", 
+            "name": "Makanan",
+            "hasMenuItem": {
+              "@type": "MenuItem",
+              "name": "Mie Nyemek",
+              "description": "Mie dengan kuah yang kaya rasa, dilengkapi dengan topping pilihan",
+              "offers": {
+                "@type": "Offer",
+                "price": "15000",
+                "priceCurrency": "IDR"
+              }
+            }
+          }
+        ]
+      },
+      "additionalType": "CarWash",
+      "makesOffer": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Cuci Motor",
+            "description": "Layanan pencucian motor lengkap dengan pembersihan menyeluruh"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service", 
+            "name": "Cuci Mobil Body",
+            "description": "Fokus pada pembersihan eksterior mobil dengan teknologi foam wash"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Cuci Mobil Full",
+            "description": "Paket lengkap pembersihan eksterior dan interior secara detail"
+          }
+        }
+      ],
+      "sameAs": [
+        "https://wa.me/6281234567890",
+        "https://instagram.com/jowincoffee"
+      ]
+    }
+    </script>
 </head>
 
 <body class="bg-cream text-coffee font-sans overflow-x-hidden">
@@ -98,10 +215,10 @@
 
         const observer = new IntersectionObserver(function(entries) {
             entries.forEach(entry => {
-            // Jangan animasi jika section id-nya 'hero' (beranda)
-            if (entry.isIntersecting && entry.target.id !== 'hero') {
-                entry.target.classList.add('animate-fade-in-up');
-            }
+                // Jangan animasi jika section id-nya 'hero' (beranda)
+                if (entry.isIntersecting && entry.target.id !== 'hero') {
+                    entry.target.classList.add('animate-fade-in-up');
+                }
             });
         }, observerOptions);
 
