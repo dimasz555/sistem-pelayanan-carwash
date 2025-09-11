@@ -10,9 +10,6 @@
     <!-- SEO Meta Tags -->
     <meta name="description"
         content="Jowin Coffee & Carwash Pontianak - Nikmati kopi premium sambil kendaraan Anda dicuci dengan teknologi terdepan. Kopi Jowin Rp 15.000, Mie Nyemek Rp 15.000. Buka 08.00-22.00 WIB di Jl. Perdana No. 999">
-    <meta name="keywords"
-        content="jowin coffee, carwash pontianak, kopi pontianak, cuci mobil pontianak, cafe pontianak, kopi jowin, mie nyemek, cuci motor pontianak, coffee carwash">
-    <meta name="author" content="Jowin Coffee & Carwash">
     <meta name="robots" content="index, follow">
 
     <!-- Open Graph untuk Media Sosial -->
@@ -24,13 +21,6 @@
     <meta property="og:site_name" content="Jowin Coffee & Carwash">
     <meta property="og:image" content="{{ asset('assets/icons/icon_jowin.png') }}">
     <meta property="og:locale" content="id_ID">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Jowin Coffee & Carwash - Ngopi Santai Mobil Bersih">
-    <meta name="twitter:description"
-        content="Nikmati kopi premium sambil kendaraan Anda dicuci dengan teknologi terdepan di Pontianak">
-    <meta name="twitter:image" content="{{ asset('assets/icons/icon_jowin.png') }}">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ url()->current() }}">
