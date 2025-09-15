@@ -160,15 +160,15 @@ class SendWhatsAppTransaction
                 }
 
                 $message .= "*✅ PEMBAYARAN DIKONFIRMASI*\n\n" .
-                    "Pembayaran untuk cuci kendaraan Anda telah berhasil kami terima dan dikonfirmasi.\n\n" .
-                    "📋 *Detail Transaksi:*\n" .
-                    "• Invoice: *{$invoice}*\n" .
-                    "• Antrian: *#{$queue}*\n" .
-                    "• Layanan: *{$service}*\n" .
-                    "• Kendaraan: *{$vehicle}*\n" .
-                    "• Plat Nomor: *{$plate}*\n" .
-                    "• Total: {$priceInfo}\n" .
-                    "• Waktu Pembayaran: *{$paidTime} WIB*\n\n" .
+                    "Pembayaran untuk cuci kendaraan Anda telah berhasil kami terima dan dikonfirmasi.\n" .
+                    // "📋 *Detail Transaksi:*\n" .
+                    // "• Invoice: *{$invoice}*\n" .
+                    // "• Antrian: *#{$queue}*\n" .
+                    // "• Layanan: *{$service}*\n" .
+                    // "• Kendaraan: *{$vehicle}*\n" .
+                    // "• Plat Nomor: *{$plate}*\n" .
+                    // "• Total: {$priceInfo}\n" .
+                    "Waktu Pembayaran: *{$paidTime} WIB*\n\n" .
                     "🏆 *PROGRAM LOYALITAS PELANGGAN*\n" .
                     "• Total Cuci Anda: *{$totalWash}x*\n" .
                     "• Bonus Gratis Didapat: *{$freeWashCount}x*\n";
