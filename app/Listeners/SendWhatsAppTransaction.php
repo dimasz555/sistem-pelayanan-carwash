@@ -116,8 +116,8 @@ class SendWhatsAppTransaction
 
                 $priceInfo = $is_free ? "*GRATIS* 🎉" : "*Rp{$biaya}*";
 
-                $message = "*PENCUCIAN KENDARAAN*\n\n" .
-                    "Hai *{$fullName}!*\n\n" .
+                $message = "🚗 *PENCUCIAN KENDARAAN*\n\n" .
+                    "Halo *{$fullName}!*\n\n" .
                     "Transaksi cuci kendaraan Anda telah berhasil dibuat.\n\n" .
                     "📋 *Detail Transaksi:*\n" .
                     "• Invoice: *{$invoice}*\n" .
@@ -151,7 +151,7 @@ class SendWhatsAppTransaction
                 $washesUntilFree = 10 - ($totalWash % 10);
                 $isEligibleForNextFree = ($totalWash % 10 == 0 && $totalWash > 0);
 
-                $message = "🙏 *Terima kasih {$fullName}!*\n\n";
+                $message = "🙏 *Halo {$fullName}!*\n\n";
 
                 if ($is_free) {
                     $message .= "Selamat! Anda telah menggunakan bonus cuci gratis ke-{$freeWashCount}! 🎊\n\n";
