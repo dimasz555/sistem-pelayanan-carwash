@@ -11,6 +11,7 @@ use Filament\Notifications\Actions\Action;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use App\Events\TransactionCreated;
+use App\Events\TransactionPaid;
 use App\Models\User;
 
 
@@ -72,7 +73,6 @@ class CreateTransaction extends CreateRecord
         return $data;
     }
 
-
     protected function afterCreate(): void
     {
         event(new TransactionCreated($this->record));
@@ -91,5 +91,10 @@ class CreateTransaction extends CreateRecord
             ->body('Nomor Invoice: ' . $this->record->invoice . ' | Antrian: ' . $this->record->queue_number)
             ->success()
             ->send();
+
+        // event TransactionPaid jika transaksi langsung dibayar
+        if ($this->record->is_paid) {
+            event(new TransactionPaid($this->record));
+        }
     }
 }
